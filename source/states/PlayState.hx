@@ -146,7 +146,7 @@ class PlayState extends FlxState
 	{
 		if (FlxG.sound.music != null) 
 			Conductor.current.time = FlxG.sound.music.time;
-		scoreBoard.text = (using_autoplay ? "Autoplay Mode" : ""
+		scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : ""
 		+ "PERFECT!!"
 		+ "\nCombo: "+combo+"x");
 
@@ -157,17 +157,34 @@ class PlayState extends FlxState
 
 		if (FlxG.keys.justPressed.SPACE) {
 			FlxG.sound.music.play();
-
 			player.setPosition();
 			player.started = true;
 		}
 		if (FlxG.sound.music != null && using_autoplay) {
-			while (auto_map[0] != null && Conductor.current.current_steps > auto_map[0][0]-1) {
-				player.direction = auto_map[0][1];
-				auto_map.shift();
-			}
-		}
+			tile_group.forEachAlive((tile:ArrowTile) ->
+			{
+				if (Conductor.current.current_steps > tile.step - 1 && !tile.already_hit)
+					onTileHit(tile);
 
+				if (tile.already_hit && tile.step + 8 < Conductor.current.current_steps)
+				{
+					trace("Killed");
+					tile.kill();
+					tile.destroy();
+					tile_group.remove(tile, true);
+				}
+			});
+		}
 		super.update(elapsed);
+	}
+
+	public function onTileHit(tile:ArrowTile)
+	{
+		tile.already_hit = true;
+		player.direction = tile.direction;
+		player.setPosition(tile.x, tile.y);
+		combo++;
+		scoreBoard.scale.x += 0.3;
+		FlxG.camera.zoom += 0.05;
 	}
 }

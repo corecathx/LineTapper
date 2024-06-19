@@ -7,10 +7,13 @@ import objects.Player.PlayerDirection;
 import openfl.display.BitmapData;
 
 class ArrowTile extends FlxSprite {
-    var step:Int = 0;
+	public var direction:PlayerDirection = DOWN;
+	public var step:Int = 0;
+	public var already_hit:Bool = false;
     public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int) {
         super(nX,nY);
         step = curStep;
+		direction = dir;
         loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromFile("./assets/images/ArrowTile.png")));
         switch (dir) {
             case LEFT:
@@ -31,6 +34,10 @@ class ArrowTile extends FlxSprite {
         } else {
             alpha -= 3 * elapsed;
         }
+		if (already_hit)
+		{
+			scale.set(scale.x + (3 * elapsed), scale.y + (3 * elapsed));
+		}
         super.update(elapsed);
     }
 }

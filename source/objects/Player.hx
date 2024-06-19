@@ -5,6 +5,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import game.Conductor;
+import states.PlayState;
 
 enum abstract PlayerDirection(Int) {
     var LEFT = 0;
@@ -19,7 +20,9 @@ typedef PlayerControls = {
 }
 
 class Player extends FlxSprite {
-    public var direction:PlayerDirection = PlayerDirection.DOWN;
+	public var direction:PlayerDirection = DOWN;
+	public var nextDirection:PlayerDirection = DOWN;
+	public var nextStep:Int = 0;
     public var speed:Float = 1;
     public var pixelMovement:Float = 5;
 
