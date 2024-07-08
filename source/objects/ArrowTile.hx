@@ -6,15 +6,34 @@ import lime.graphics.Image;
 import objects.Player.PlayerDirection;
 import openfl.display.BitmapData;
 
+/**
+ * Arrow Tile object, used during gameplay.
+ */
 class ArrowTile extends FlxSprite {
+	/**
+	 * Arrow direction of this tile points at. (`PlayerDirection`)
+	 */
 	public var direction:PlayerDirection = DOWN;
+	/**
+	 * This tile's Step time.
+	 */
 	public var step:Int = 0;
+	/**
+	 * Indicates whether this tile have been hit or not.
+	 */
 	public var already_hit:Bool = false;
+	/**
+	 * Creates a new ArrowTile object.
+	 * @param nX X Position
+	 * @param nY Y Position
+	 * @param dir Arrow direction of this tile points at.
+	 * @param curStep This tile's Step time.
+	 */
     public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int) {
         super(nX,nY);
         step = curStep;
 		direction = dir;
-        loadGraphic(FlxGraphic.fromBitmapData(BitmapData.fromFile("./assets/images/ArrowTile.png")));
+		loadGraphic(Assets.image("ArrowTile"));
 		color = switch (step % 4)
 		{
 			case 0: 0xFFFF8800;

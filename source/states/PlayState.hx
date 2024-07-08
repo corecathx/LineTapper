@@ -23,7 +23,9 @@ class PlayState extends FlxState
 {
 	public static var current:PlayState;
 
-	public var MAP:LineMap;
+	public var songName:String = "Tutorial";
+
+	public var linemap:LineMap;
 	public var speedRate:Float = 1;
 
 	public var scoreBoard:FlxText;
@@ -41,6 +43,16 @@ class PlayState extends FlxState
 	var hudCamera:FlxCamera;
 	var using_autoplay:Bool = true;
 
+	/**
+	 * Prepares `PlayState` to load and play `song` file.
+	 * @param song 
+	 */
+	public function new(?song:String)
+	{
+		if (song != null)
+			songName = song;
+		super();
+	}
 
 	override public function create()
 	{
@@ -57,18 +69,20 @@ class PlayState extends FlxState
 		super.create();
 	}
 	function loadSong() {
-		FlxG.sound.playMusic(AssetPaths.Inst__ogg, 0.7, true);
+		var mapAsset:MapAsset = Assets.map(songName);
+		FlxG.sound.playMusic(mapAsset.audio, 0.7, true);
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
 		FlxG.sound.music.pause();
 
-		MAP = MapData.loadMap(File.getContent("./assets/data/newChart.json"));
+		linemap = mapAsset.map;
 	
 		var current_direction:PlayerDirection = PlayerDirection.DOWN;
 		var tileData:Array<Int> = [0, 0]; // Current Tile, rounded from 50px, 0,0 is the first tile.
 		var curStep:Int = 0;
 	
-		for (tile in MAP.tiles) {
+		for (tile in linemap.tiles)
+		{
 			// Calculate step difference
 			var stepDifference:Int = tile.step - curStep;
 			curStep = tile.step; // Update curStep to the current tile step
@@ -99,7 +113,7 @@ class PlayState extends FlxState
 	
 		}
 	
-		Conductor.current.updateBPM(MAP.bpm);
+		Conductor.current.updateBPM(linemap.bpm);
 		Conductor.current.onBeatTick.add(() -> {
 			player.scale.x = player.scale.y += 0.3;
 		});
@@ -119,7 +133,7 @@ class PlayState extends FlxState
 
 	function loadHUD() {
 		scoreBoard = new FlxText(20,20,-1,"",20);
-		scoreBoard.setFormat(AssetPaths.fred_sembold__ttf, 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		scoreBoard.setFormat(Assets.font("fredoka-bold"), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		add(scoreBoard);
 		scoreBoard.cameras = [hudCamera];
 	}
@@ -188,7 +202,9 @@ class PlayState extends FlxState
 		player.direction = tile.direction;
 		player.setPosition(tile.x, tile.y);
 		combo++;
-		FlxG.sound.play(AssetPaths.hit_sound__ogg);
+		var snd = Assets.sound("hit_sound");
+		trace(snd);
+		FlxG.sound.play(snd);
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
 	}

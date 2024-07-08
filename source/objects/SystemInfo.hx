@@ -37,7 +37,7 @@ class SystemInfo extends TextField
 
 	public var times:Array<Float>;
 
-	public static var curFont = AssetPaths.fred_sembold__ttf;
+	public static var curFont = Assets.font("fredoka-bold");
 
 	public function new(inX:Float = 10.0, inY:Float = 10.0, inCol:Int = 0x000000, bold:Bool = false)
 	{

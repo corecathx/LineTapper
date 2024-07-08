@@ -12,6 +12,7 @@ typedef LineMap = {
 }
 
 class MapData {
+	// Ignore please
     public static final TESTING_MAP:LineMap = {
         tiles: [ // starts down
             { step: 4, direction: 3 }, // right

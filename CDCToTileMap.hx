@@ -33,12 +33,15 @@ class CDCToTileMap
 	/** Single step in miliseconds **/
 	public static var step_ms:Float = 125;
 
+	/** offset **/
+	public static var offset:Float = 60;
+
 	static function main()
 	{
 		trace("hi");
 		cls();
 		Sys.println("hold on");
-		var path:String = "D:/GAMES/FNFMOD/CoreDev Engine/cdev_engine-master/art/converter/chartTemp/blazin/blazin.cdc";
+		var path:String = "D:/GAMES/FNFMOD/CoreDev Engine/cdev_engine-master/art/converter/chartTemp/tutorial/tutorial.cdc";
 
 		if (FileSystem.exists(path))
 		{
@@ -51,29 +54,34 @@ class CDCToTileMap
             updateBPM(mainChart.info.bpm);
             tileData.bpm = mainChart.info.bpm;
             var anotherWeird:WeirdData = Json.parse(File.getContent(path));
-            var lastDir:Int = 1;
+			var lastDirs:Array<Int> = [];
 			var lastStep:Int = 0;
 			for (i in anotherWeird.notes)
 			{
-				var stp:Int = Math.round(i[0] / step_ms);
+				var stp:Int = Math.round((i[0] - offset) / step_ms);
 				if (lastStep == stp)
 					continue;
 				lastStep = stp;
-                var rand:Int = Math.round(Math.random()*3);
-				do  {
-                    rand = Math.round(Math.random()*3);
-                } while (lastDir == rand);
+				var rand:Int;
+				do
+				{
+					rand = Math.round(Math.random() * 3);
+				}
+				while (lastDirs.contains(rand));
+			
+				lastDirs.push(rand);
+				if (lastDirs.length > 2)
+					lastDirs.shift();
 
-                lastDir = rand;
-
-                tileData.tiles.push(cast {
+				tileData.tiles.push(cast {
 					step: stp,
-                    direction: rand
-                });
+					direction: rand
+				});
 			}
+
 			trace("BPM: " + mainChart.info.bpm + " // ");
 
-			File.saveContent("./assets/data/newChart.json", Json.stringify(tileData, "\t"));
+			File.saveContent("./assets/data/maps/Tutorial/map.json", Json.stringify(tileData, "\t"));
 		}
 		else
 		{
