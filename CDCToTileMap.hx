@@ -38,7 +38,7 @@ class CDCToTileMap
 		trace("hi");
 		cls();
 		Sys.println("hold on");
-		var path:String = "D:/GAMES/FNFMOD/CoreDev Engine/cdev_engine-master/art/chartTemp/blazin/blazin.cdc";
+		var path:String = "D:/GAMES/FNFMOD/CoreDev Engine/cdev_engine-master/art/converter/chartTemp/blazin/blazin.cdc";
 
 		if (FileSystem.exists(path))
 		{
@@ -52,22 +52,28 @@ class CDCToTileMap
             tileData.bpm = mainChart.info.bpm;
             var anotherWeird:WeirdData = Json.parse(File.getContent(path));
             var lastDir:Int = 1;
+			var lastStep:Int = 0;
 			for (i in anotherWeird.notes)
 			{
+				var stp:Int = Math.round(i[0] / step_ms);
+				if (lastStep == stp)
+					continue;
+				lastStep = stp;
                 var rand:Int = Math.round(Math.random()*3);
 				do  {
                     rand = Math.round(Math.random()*3);
                 } while (lastDir == rand);
 
                 lastDir = rand;
+
                 tileData.tiles.push(cast {
-                    step: Math.round(i[0]/step_ms),
+					step: stp,
                     direction: rand
                 });
 			}
 			trace("BPM: " + mainChart.info.bpm + " // ");
 
-            File.saveContent("./newChart.json", Json.stringify(tileData,"\t"));
+			File.saveContent("./assets/data/newChart.json", Json.stringify(tileData, "\t"));
 		}
 		else
 		{

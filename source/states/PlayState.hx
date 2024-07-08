@@ -2,6 +2,7 @@ package states;
 
 import flixel.FlxCamera;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
@@ -28,6 +29,8 @@ class PlayState extends FlxState
 	public var scoreBoard:FlxText;
 	public var combo:Int = 0;
 
+	public var camFollow:FlxObject;
+
 	public var player:Player;
 	public var tile_group:FlxTypedGroup<ArrowTile>;
 
@@ -36,8 +39,6 @@ class PlayState extends FlxState
 
 	var gameCamera:FlxCamera;
 	var hudCamera:FlxCamera;
-
-	var auto_map:Array<Dynamic> = [];
 	var using_autoplay:Bool = true;
 
 
@@ -50,11 +51,13 @@ class PlayState extends FlxState
 		loadHUD();
 
 		loadSong();
-		FlxG.camera.follow(player, LOCKON);
+		camFollow = new FlxObject(player.x, player.y - 100, 1, 1);
+		add(camFollow);
+		FlxG.camera.follow(camFollow, LOCKON);
 		super.create();
 	}
 	function loadSong() {
-		FlxG.sound.playMusic(AssetPaths.Inst__ogg,1,true);
+		FlxG.sound.playMusic(AssetPaths.Inst__ogg, 0.7, true);
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
 		FlxG.sound.music.pause();
@@ -89,7 +92,6 @@ class PlayState extends FlxState
 			var posX = tileData[0] * 50;
 			var posY = tileData[1] * 50;
 
-			auto_map.push([curStep,direction]);
 			var arrowTile = new ArrowTile(posX, posY, direction, curStep);
 			tile_group.add(arrowTile);
 	
@@ -102,7 +104,7 @@ class PlayState extends FlxState
 			player.scale.x = player.scale.y += 0.3;
 		});
 	
-		trace("Tile group length: " + tile_group.length);
+		// trace("Tile group length: " + tile_group.length);
 	}
 	
 
@@ -155,6 +157,9 @@ class PlayState extends FlxState
 		scoreBoard.screenCenter(X);
 		FlxG.camera.zoom = FlxMath.lerp(1,FlxG.camera.zoom, 1-(elapsed*12));
 
+		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
+		camFollow.y = FlxMath.lerp(player.getMidpoint().y, camFollow.y, 1 - (elapsed * 12));
+
 		if (FlxG.keys.justPressed.SPACE) {
 			FlxG.sound.music.play();
 			player.setPosition();
@@ -168,7 +173,6 @@ class PlayState extends FlxState
 
 				if (tile.already_hit && tile.step + 8 < Conductor.current.current_steps)
 				{
-					trace("Killed");
 					tile.kill();
 					tile.destroy();
 					tile_group.remove(tile, true);
@@ -184,6 +188,7 @@ class PlayState extends FlxState
 		player.direction = tile.direction;
 		player.setPosition(tile.x, tile.y);
 		combo++;
+		FlxG.sound.play(AssetPaths.hit_sound__ogg);
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
 	}
