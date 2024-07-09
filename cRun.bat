@@ -1,2 +1,4 @@
 echo off
-haxe --interp --main CDCToTileMap
+cd converter
+haxe --interp --main FNFToLineMap
+cd..

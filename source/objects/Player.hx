@@ -156,25 +156,26 @@ class Player extends FlxSprite {
 
 			var tileTime:Float = nextTile.step * Conductor.current.step_ms;
 			var hitable:Bool = tileTime > Conductor.current.time - (Conductor.current.safe_zone_offset * 1.5)
-				&& tileTime < Conductor.current.time + (Conductor.current.safe_zone_offset * 0.5);
+				&& tileTime < Conductor.current.time + (Conductor.current.safe_zone_offset * 0.25);
 
 			var timeDiff:Float = tileTime - Conductor.current.time; // + is early, - is late.
 			// i want to die :sob:
-			var offset:Float = timeDiff * (50 / Conductor.current.step_ms) * states.PlayState.current.speedRate;
+			var tOffset:Float = timeDiff * (50 / Conductor.current.step_ms) * states.PlayState.current.speedRate;
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
 					nextTile.already_hit = true;
 					PlayState.current.hitStatus = "PERFECT!!";
 					PlayState.current.onTileHit(nextTile);
-					onHitPropertyChange(nextTile, offset, true);
+					onHitPropertyChange(nextTile, tOffset, true);
 				}
 			} else if (!nextTile.missed && tileTime < Conductor.current.time - (Conductor.current.safe_zone_offset * 0.2)) {
 				trace("MISSED!!!");
 				PlayState.current.hitStatus = "MISSED...";
 				PlayState.current.combo = 0;
 				nextTile.missed = true;
-				onHitPropertyChange(nextTile, -offset, false);
+                
+				onHitPropertyChange(nextTile, tOffset, false);
 			}
 		}
 	}
