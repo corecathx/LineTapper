@@ -19,9 +19,13 @@ class ArrowTile extends FlxSprite {
 	 */
 	public var step:Int = 0;
 	/**
-	 * Indicates whether this tile have been hit or not.
+	 * Indicates whether this tile have been hit.
 	 */
 	public var already_hit:Bool = false;
+	/**
+	 * Indicates whether the player missed this tile.
+	 */
+	public var missed:Bool = false;
 	/**
 	 * Creates a new ArrowTile object.
 	 * @param nX X Position
@@ -60,19 +64,27 @@ class ArrowTile extends FlxSprite {
     override function update(elapsed:Float) {
 		if (Conductor.current.current_steps + 10 > step && Conductor.current.current_steps < step && alpha < 1)
 		{
-            alpha += 2 * elapsed;
-        } else {
-            alpha -= 3 * elapsed;
-        }
-		if (already_hit)
-		{
+			alpha += 2 * elapsed;
+		} else {
+			alpha -= 3 * elapsed;
+		}
+	
+
+		if (missed) {
+			color = FlxColor.RED;
+			scale.set(scale.x - (2 * elapsed), scale.y - (2 * elapsed));
+			angle += _angleAdd * elapsed;
+		}
+
+		if (already_hit) {
 			scale.set(scale.x + (3 * elapsed), scale.y + (3 * elapsed));
 			angle += _angleAdd * elapsed;
 		}
-		else
-		{
+
+		if (!missed && !already_hit) {
 			_angleAdd = FlxG.random.float(-90, 90);
 		}
+
         super.update(elapsed);
     }
 }

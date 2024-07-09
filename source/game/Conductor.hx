@@ -9,6 +9,9 @@ class Conductor {
     /** Current song time / position **/
     public var time(default,set):Float = 0;
 
+    /** Current song time / position offset **/
+    public var offset:Float = 0;
+
     /** Tracker for current beats **/
     public var current_beats:Int = 0;
 
@@ -23,6 +26,12 @@ class Conductor {
 
     /** Single step in miliseconds **/
 	public var step_ms:Float = 125;
+
+    /** Hit window frame size **/
+	public var safe_frames:Float = 20;
+
+    /** Hitable area for tiles. **/
+    public var safe_zone_offset:Float = Math.floor((20 / 60) * 1000);
 
     /** Will be called on each beat tick changes. **/
     public var onBeatTick:FlxSignal;
@@ -45,6 +54,11 @@ class Conductor {
         onStepTick = new FlxSignal();
     }
 
+    public function destroy() {
+        onBeatTick.removeAll();
+        onStepTick.removeAll();
+    }
+
     /**
      * Changes current bpm to `newBPM`.
      * @param newBPM New BPM to set.
@@ -53,6 +67,9 @@ class Conductor {
         bpm = newBPM;
         beat_ms = ((60 / bpm) * 1000);
         step_ms = beat_ms / 4;
+
+        safe_frames = 20;
+        safe_zone_offset = Math.floor((safe_frames / 60) * 1000);
     }
 
     /** get_ and set_ functions and other internal stuffs down here **/
@@ -67,7 +84,7 @@ class Conductor {
         current_beats = Std.int(current_steps / 4);
 
         _checkTicks();
-        return time = nTime;
+        return time = nTime + offset;
     }
 
     private function _checkTicks() {

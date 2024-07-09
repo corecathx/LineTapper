@@ -37,7 +37,7 @@ class SystemInfo extends TextField
 
 	public var times:Array<Float>;
 
-	public static var curFont = Assets.font("fredoka-bold");
+	public static var curFont = Assets.font("extenro-bold");
 
 	public function new(inX:Float = 10.0, inY:Float = 10.0, inCol:Int = 0x000000, bold:Bool = false)
 	{
@@ -47,7 +47,7 @@ class SystemInfo extends TextField
 		current = this;
 
 		selectable = false;
-		defaultTextFormat = new TextFormat(curFont, 12, inCol, false);
+		defaultTextFormat = new TextFormat(curFont, 8, inCol, false);
 		text = "FPS: ";
 		times = [];
 		autoSize = LEFT;
@@ -79,12 +79,12 @@ class SystemInfo extends TextField
 		if (visible)
 		{
 			var c = {
-				fps: curFps + " FPS ("+ Std.int((1/curFps)*1000)+ "ms)" + (lowFPS?" [!]":""),
+				fps: curFps + " FPS ("+ Std.int((1/curFps)*1000)+ "MS)" + (lowFPS?" [!]":""),
 				mem: ramStr + " RAM"
 			}
 			var wholeText = '${c.fps}\n${c.mem}';
 
-			text = wholeText + "\n\n > LineTapper v0.0.1 - (Proof of Concept)";
+			text = wholeText + "\nLINETAPPER POC V0.0.1";
 			applySizes();
 		}
 	
@@ -92,7 +92,7 @@ class SystemInfo extends TextField
 	}
 
 	function applySizes(){
-		this.setTextFormat(new TextFormat(curFont, 18, 0xFFFFFF),0,Std.string(times.length).length);
+		this.setTextFormat(new TextFormat(curFont, 14, 0xFFFFFF),0,Std.string(times.length).length);
 	}
 
     public function convert_size(bytes:Float):String

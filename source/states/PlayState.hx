@@ -1,16 +1,10 @@
 package states;
 
-import flixel.FlxCamera;
-import flixel.FlxG;
-import flixel.FlxObject;
-import flixel.FlxState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.display.FlxTiledSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
 import game.Conductor;
 import game.MapData.LineMap;
@@ -41,7 +35,7 @@ class PlayState extends FlxState
 
 	var gameCamera:FlxCamera;
 	var hudCamera:FlxCamera;
-	var using_autoplay:Bool = true;
+	var using_autoplay:Bool = false;
 
 	/**
 	 * Prepares `PlayState` to load and play `song` file.
@@ -68,19 +62,21 @@ class PlayState extends FlxState
 		FlxG.camera.follow(camFollow, LOCKON);
 		super.create();
 	}
-	function loadSong() {
+
+	function loadSong()
+	{
 		var mapAsset:MapAsset = Assets.map(songName);
-		FlxG.sound.playMusic(mapAsset.audio, 0.7, true);
+		FlxG.sound.playMusic(mapAsset.audio, 1, true);
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
 		FlxG.sound.music.pause();
 
 		linemap = mapAsset.map;
-	
+
 		var current_direction:PlayerDirection = PlayerDirection.DOWN;
 		var tileData:Array<Int> = [0, 0]; // Current Tile, rounded from 50px, 0,0 is the first tile.
 		var curStep:Int = 0;
-	
+
 		for (tile in linemap.tiles)
 		{
 			// Calculate step difference
@@ -89,7 +85,8 @@ class PlayState extends FlxState
 
 			var direction:PlayerDirection = cast tile.direction;
 
-			switch (current_direction) {
+			switch (current_direction)
+			{
 				case PlayerDirection.LEFT:
 					tileData[0] -= stepDifference;
 				case PlayerDirection.RIGHT:
@@ -108,21 +105,22 @@ class PlayState extends FlxState
 
 			var arrowTile = new ArrowTile(posX, posY, direction, curStep);
 			tile_group.add(arrowTile);
-	
+
 			current_direction = direction;
-	
 		}
-	
+
 		Conductor.current.updateBPM(linemap.bpm);
-		Conductor.current.onBeatTick.add(() -> {
-			player.scale.x = player.scale.y += 0.3;
+		Conductor.current.onBeatTick.add(() ->
+		{
+			if (player != null)
+				player.scale.x = player.scale.y += 0.3;
 		});
-	
+
 		// trace("Tile group length: " + tile_group.length);
 	}
-	
 
-	function initCameras() {
+	function initCameras()
+	{
 		gameCamera = new FlxCamera();
 		FlxG.cameras.reset(gameCamera);
 
@@ -131,21 +129,23 @@ class PlayState extends FlxState
 		FlxG.cameras.add(hudCamera, false);
 	}
 
-	function loadHUD() {
-		scoreBoard = new FlxText(20,20,-1,"",20);
-		scoreBoard.setFormat(Assets.font("fredoka-bold"), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+	function loadHUD()
+	{
+		scoreBoard = new FlxText(20, 20, -1, "", 20);
+		scoreBoard.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		add(scoreBoard);
 		scoreBoard.cameras = [hudCamera];
 	}
 
-	function loadGameplay() {
+	function loadGameplay()
+	{
 		bg_gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.BLUE], 1, 90, true);
 		bg_gradient.scale.set(1, 1);
 		bg_gradient.scrollFactor.set();
 		bg_gradient.alpha = 0.2;
 		add(bg_gradient);
 
-		bg = new FlxBackdrop(FlxGridOverlay.createGrid(50,50,100,100,true,0xFF000F30,0xFF002763), XY);
+		bg = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
 		bg.scale.set(1, 1);
 		bg.updateHitbox();
 		bg.alpha = 0.3;
@@ -154,44 +154,67 @@ class PlayState extends FlxState
 		tile_group = new FlxTypedGroup<ArrowTile>();
 		add(tile_group);
 
-		player = new Player(0,0);
+		player = new Player(0, 0);
 		add(player);
 	}
 
+
+	public var hitStatus:String = "PERFECT!!";
 	override public function update(elapsed:Float)
 	{
-		if (FlxG.sound.music != null) 
+		if (FlxG.sound.music != null)
 			Conductor.current.time = FlxG.sound.music.time;
-		scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : ""
-		+ "PERFECT!!"
-		+ "\nCombo: "+combo+"x");
+		scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
 
-		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1,scoreBoard.scale.x,1-(elapsed*12));
-		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height-(scoreBoard.height+20));
+		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 12));
+		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
 		scoreBoard.screenCenter(X);
-		FlxG.camera.zoom = FlxMath.lerp(1,FlxG.camera.zoom, 1-(elapsed*12));
+		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, 1 - (elapsed * 12));
 
 		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
 		camFollow.y = FlxMath.lerp(player.getMidpoint().y, camFollow.y, 1 - (elapsed * 12));
 
-		if (FlxG.keys.justPressed.SPACE) {
+		if (FlxG.keys.justPressed.SPACE)
+		{
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;
 		}
-		if (FlxG.sound.music != null && using_autoplay) {
-			tile_group.forEachAlive((tile:ArrowTile) ->
-			{
-				if (Conductor.current.current_steps > tile.step - 1 && !tile.already_hit)
-					onTileHit(tile);
 
-				if (tile.already_hit && tile.step + 8 < Conductor.current.current_steps)
+		if (FlxG.sound.music != null)
+		{
+			if (using_autoplay)
+			{
+				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					tile.kill();
-					tile.destroy();
-					tile_group.remove(tile, true);
-				}
-			});
+					if (Conductor.current.current_steps > tile.step - 1 && !tile.already_hit)
+						onTileHit(tile);
+
+					if (tile.already_hit && tile.step + 8 < Conductor.current.current_steps)
+					{
+						tile.kill();
+						tile.destroy();
+						tile_group.remove(tile, true);
+					}
+				});
+			} else {
+				player.checkTiles(tile_group);
+
+				tile_group.forEachAlive((tile:ArrowTile) ->
+				{
+					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.current.current_steps)
+					{
+						tile.kill();
+						tile.destroy();
+						tile_group.remove(tile, true);
+					}
+				});
+
+				FlxG.watch.addQuick("Player Current Step: ", player.currentStep);
+				FlxG.watch.addQuick("Player Current Direction: ", player.direction);
+				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
+				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
+			}
 		}
 		super.update(elapsed);
 	}
@@ -200,11 +223,9 @@ class PlayState extends FlxState
 	{
 		tile.already_hit = true;
 		player.direction = tile.direction;
-		player.setPosition(tile.x, tile.y);
+		if (using_autoplay) player.setPosition(tile.x, tile.y);
 		combo++;
-		var snd = Assets.sound("hit_sound");
-		trace(snd);
-		FlxG.sound.play(snd);
+		FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
 	}
