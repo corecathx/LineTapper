@@ -1,5 +1,5 @@
 # LineTapper (WIP)
-A rhythm game project by CoreCat / Core5570R.
+A rhythm game project by CoreCat.
 > Made using [HaxeFlixel](https://haxeflixel.com/)
 
 ## Building Guide

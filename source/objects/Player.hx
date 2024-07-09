@@ -169,7 +169,7 @@ class Player extends FlxSprite {
 					PlayState.current.onTileHit(nextTile);
 					onHitPropertyChange(nextTile, offset, true);
 				}
-			} else if (!nextTile.missed && tileTime < Conductor.current.time - (Conductor.current.safe_zone_offset * 0.5)) {
+			} else if (!nextTile.missed && tileTime < Conductor.current.time - (Conductor.current.safe_zone_offset * 0.2)) {
 				trace("MISSED!!!");
 				PlayState.current.hitStatus = "MISSED...";
 				PlayState.current.combo = 0;
