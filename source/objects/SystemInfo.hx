@@ -92,7 +92,7 @@ class SystemInfo extends TextField
 	}
 
 	function applySizes(){
-		this.setTextFormat(new TextFormat(curFont, 14, 0xFFFFFF),0,Std.string(times.length).length);
+		this.setTextFormat(new TextFormat(curFont, 10, 0xFFFFFF),0,Std.string(times.length).length);
 	}
 
     public function convert_size(bytes:Float):String

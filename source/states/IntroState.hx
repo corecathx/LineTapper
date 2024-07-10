@@ -106,7 +106,8 @@ class IntroState extends FlxState {
         _rotateTime += elapsed;
         playerBox.angle = FlxEase.expoInOut(_rotateTime%1)*(-90);
 
-        if (_rotateTime > 3) FlxG.switchState(new PlayState("Lagtrain"));
+        if (_rotateTime > 3) 
+            FlxG.switchState(new MenuState());
     }
 
     /**

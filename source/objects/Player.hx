@@ -74,6 +74,7 @@ class Player extends FlxSprite {
 			var n:FlxSprite = new FlxSprite(x, y).makeGraphic(50, 50, 0xFFFFFFFF);
 			n.alpha = 0.8;
 			n.active = false;
+			n.blend = ADD;
 			trails.push(n);
 			_curTime = 0;
 		}

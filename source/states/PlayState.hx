@@ -35,7 +35,7 @@ class PlayState extends FlxState
 
 	var gameCamera:FlxCamera;
 	var hudCamera:FlxCamera;
-	var using_autoplay:Bool = true;
+	var using_autoplay:Bool = false;
 
 	/**
 	 * Prepares `PlayState` to load and play `song` file.
@@ -142,13 +142,11 @@ class PlayState extends FlxState
 		bg_gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.BLUE], 1, 90, true);
 		bg_gradient.scale.set(1, 1);
 		bg_gradient.scrollFactor.set();
-		bg_gradient.alpha = 0.2;
+		bg_gradient.alpha = 0.1;
 		add(bg_gradient);
 
 		bg = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
-		bg.scale.set(1, 1);
-		bg.updateHitbox();
-		bg.alpha = 0.3;
+		bg.alpha = 0;
 		add(bg);
 
 		tile_group = new FlxTypedGroup<ArrowTile>();
@@ -159,13 +157,15 @@ class PlayState extends FlxState
 	}
 
 
-	public var hitStatus:String = "PERFECT!!";
+	public var hitStatus:String = "";
 	override public function update(elapsed:Float)
 	{
-		if (FlxG.sound.music != null)
+		if (FlxG.sound.music != null && FlxG.sound.music.playing){
 			Conductor.current.time = FlxG.sound.music.time;
-		scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
-
+			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
+		} else {
+			scoreBoard.text = "[ PRESS SPACE TO START ]";
+		}
 		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 12));
 		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
 		scoreBoard.screenCenter(X);
