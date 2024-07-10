@@ -35,7 +35,7 @@ class PlayState extends FlxState
 
 	var gameCamera:FlxCamera;
 	var hudCamera:FlxCamera;
-	var using_autoplay:Bool = false;
+	var using_autoplay:Bool = true;
 
 	/**
 	 * Prepares `PlayState` to load and play `song` file.
