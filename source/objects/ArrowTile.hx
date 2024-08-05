@@ -26,6 +26,10 @@ class ArrowTile extends FlxSprite {
 	 * Indicates whether the player missed this tile.
 	 */
 	public var missed:Bool = false;
+
+	public var hitsound_played:Bool = false;
+
+
 	/**
 	 * Creates a new ArrowTile object.
 	 * @param nX X Position

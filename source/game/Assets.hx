@@ -1,5 +1,6 @@
 package game;
 
+import openfl.display3D.textures.RectangleTexture;
 import flixel.graphics.FlxGraphic;
 import game.MapData.LineMap;
 import lime.graphics.Image;
@@ -88,6 +89,9 @@ class Assets
 
 		var data:Image = Image.fromFile(path);
 		var newBitmap:BitmapData = BitmapData.fromImage(data);
+
+		// Send to GPU
+
 		var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(newBitmap, false, file);
 		newGraphic.persist = true;
 

@@ -4,7 +4,13 @@ import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 
+/**
+ * That one animation that starts when the game boots up.
+ */
 class IntroState extends FlxState {
+    public static var _boxSize:Int = 100;
+    public static var _scaleDec:Float = 0.3;
+
 	var playerBox:FlxSprite;
 	var tileBox:FlxSprite;
 	var ltText:FlxText;
@@ -24,7 +30,7 @@ class IntroState extends FlxState {
     function loadIntro():Void {
         // Player Box sprite
         var _centerOffset:Float = 90;
-        var _boxSize:Int = 100;
+ 
         playerBox = new FlxSprite().makeGraphic(_boxSize, _boxSize);
         playerBox.x = ((FlxG.width - playerBox.width) * 0.5) - _centerOffset;
         playerBox.screenCenter(Y);
@@ -50,7 +56,6 @@ class IntroState extends FlxState {
     var _textFlicker:Bool = false;
     function animateIntro() {
         var _tweenXOffset:Float = 30;
-        var _scaleDec:Float = 0.3;
 
         playerBox.x -= _tweenXOffset;
         tileBox.x += _tweenXOffset;
@@ -103,11 +108,19 @@ class IntroState extends FlxState {
     var _rotateTime:Float = 0;
     function loadingSeqUpdate(elapsed:Float) {
         if (!currentlyLoading) return;
-        _rotateTime += elapsed;
-        playerBox.angle = FlxEase.expoInOut(_rotateTime%1)*(-90);
 
-        if (_rotateTime > 3) 
-            FlxG.switchState(new MenuState());
+        if (_rotateTime > 3) {
+            playerBox.angle = 0;
+            FlxTween.tween(ltText, {alpha:0}, 0.5, {ease:FlxEase.linear, onComplete:(_)->{
+                ltText.destroy();
+                remove(ltText);
+                FlxG.switchState(new MenuState());
+            }});
+        } else {
+            _rotateTime += elapsed;
+            playerBox.angle = FlxEase.expoInOut(_rotateTime%1)*(-90);
+        }
+   
     }
 
     /**

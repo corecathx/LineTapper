@@ -66,7 +66,10 @@ class PlayState extends FlxState
 	function loadSong()
 	{
 		var mapAsset:MapAsset = Assets.map(songName);
-		FlxG.sound.playMusic(mapAsset.audio, 1, true);
+		FlxG.sound.playMusic(mapAsset.audio, 1, false);
+		FlxG.sound.music.onComplete = ()->{
+			FlxG.switchState(new MenuState());
+		}
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
 		FlxG.sound.music.pause();
@@ -164,7 +167,7 @@ class PlayState extends FlxState
 			Conductor.current.time = FlxG.sound.music.time;
 			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
 		} else {
-			scoreBoard.text = "[ PRESS SPACE TO START ]";
+			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
 		}
 		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 12));
 		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
@@ -179,6 +182,10 @@ class PlayState extends FlxState
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;
+		}
+
+		if (FlxG.keys.justPressed.TAB) {
+			using_autoplay = !using_autoplay;
 		}
 
 		if (FlxG.sound.music != null)
@@ -215,6 +222,14 @@ class PlayState extends FlxState
 				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
+
+			tile_group.forEachAlive((aT:ArrowTile)->{
+				if (Conductor.current.current_steps < aT.step) return;
+				if (!aT.hitsound_played) {
+					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+					aT.hitsound_played = true;
+				}
+			});
 		}
 		super.update(elapsed);
 	}
@@ -225,7 +240,6 @@ class PlayState extends FlxState
 		player.direction = tile.direction;
 		if (using_autoplay) player.setPosition(tile.x, tile.y);
 		combo++;
-		FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
 	}

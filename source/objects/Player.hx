@@ -19,6 +19,8 @@ class Player extends FlxSprite {
 	public var direction:PlayerDirection = DOWN;
 	public var nextDirection:PlayerDirection = DOWN;
 
+	public var nextTileProgress:Float = 0;
+
 	public var speed:Float = 1;
 	public var pixelMovement:Float = 5;
 
