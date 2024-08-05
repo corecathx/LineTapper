@@ -1,5 +1,5 @@
 # LineTapper (WIP)
-[LineTapper_Logo](resource/logo.png)
+![LineTapper_Logo](resource/logo.png)
 A rhythm game project by CoreCat.
 > Made using [HaxeFlixel](https://haxeflixel.com/)
 
