@@ -3,6 +3,8 @@ A rhythm game project by CoreCat.
 > Made using [HaxeFlixel](https://haxeflixel.com/)
 
 ## Building Guide
+> [!WARNING]  
+> The game is still active in Development, so there might be a lot of stuffs changing from time to time.
 Simply run `lime test hl` or `lime test windows` inside the project.
 
 ## Information
