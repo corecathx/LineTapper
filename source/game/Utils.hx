@@ -36,7 +36,7 @@ class Utils {
             id: 1,
             username: "corecathx",
             display: "CoreCat",
-            profile_url: "https://avatars.githubusercontent.com/u/73734126?v=4"
+            profile_url: "https://cdn.discordapp.com/avatars/694791036094119996/497af94fd23bccff5b3699f5222117af.png?size=4096"
         }
     }
 }

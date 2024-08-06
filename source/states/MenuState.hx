@@ -22,6 +22,8 @@ class MenuState extends StateBase {
 	var ind_top:FlxSprite;
 	var ind_bot:FlxSprite;
 
+	var user_profile:Profile;
+
 	var particles:FlxSpriteGroup;
 	var menuGroup:FlxTypedGroup<FlxText>;
 	var tri_top:FlxSprite; // Triangle Top
@@ -35,9 +37,9 @@ class MenuState extends StateBase {
 	];
 
 	var canInteract:Bool = false;
-
+	var _scaleDiff:Float = 0;
 	override function create() {
-		var _scaleDiff:Float = 1 - IntroState._scaleDec;
+		_scaleDiff = 1 - IntroState._scaleDec;
 
 		// Objects
 		bg = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.WHITE], 1, 90, true);
@@ -62,6 +64,10 @@ class MenuState extends StateBase {
 		logo.scale.set(0.6, 0.6);
 		logo.visible = false;
 		add(logo);
+		
+		user_profile = new Profile(0,FlxG.height-(Profile.size.height+20));
+		user_profile.x -= user_profile.nWidth + 10;
+		add(user_profile);
 
 		var scaleXTarget:Float = (FlxG.width * 0.75) / boxBelow.width;
 		var scaleYTarget:Float = (boxBelow.height - 30) / boxBelow.height;
@@ -81,6 +87,7 @@ class MenuState extends StateBase {
 	}
 
 	function generateOptions() {
+		curSelected = 1;
 		for (index => data in options) {
 			var txt:FlxText = new FlxText(0, 0, -1, data[0].toUpperCase(), 8);
 			txt.setFormat(Assets.font("extenro-bold"), 18, FlxColor.WHITE, CENTER);
@@ -103,10 +110,6 @@ class MenuState extends StateBase {
 		add(tri_bot);
 
 		tri_bot.alpha = tri_top.alpha = 0;
-
-		add(new Profile(200,200));
-
-		curSelected = 0;
 	}
 
 	function startMenu() {
@@ -121,6 +124,7 @@ class MenuState extends StateBase {
 				for (obj in [tri_bot, tri_top]) {
 					FlxTween.tween(obj, {alpha: 1}, 1, {ease: FlxEase.expoOut});
 				}
+				FlxTween.tween(user_profile,{x: 20},1, {ease: FlxEase.expoOut});
 			}
 		});
 	}
@@ -138,6 +142,7 @@ class MenuState extends StateBase {
 				confirmed = true;
                 for (obj in menuGroup.members) {
                     if (curSelected == obj.ID) {
+						FlxTween.tween(boxBelow.scale,{x: (obj.width+20*2) / (Std.int(IntroState._boxSize * _scaleDiff))},1,{ease:FlxEase.expoOut});
                         FlxFlicker.flicker(obj,1, 0.04,false,true,(_)->{
                             options[curSelected][1]();   
                         });
