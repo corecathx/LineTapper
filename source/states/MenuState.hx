@@ -1,5 +1,7 @@
 package states;
 
+import objects.menu.Profile;
+import objects.Player;
 import flixel.math.FlxMath;
 import haxe.Constraints.Function;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -12,167 +14,191 @@ import flixel.tweens.FlxTween;
 /**
  * Main Menu of LineTapper.
  */
-class MenuState extends FlxState {
-    var bg:FlxSprite;
-    var boxBelow:FlxSprite;
-    var logo:FlxSprite;
+class MenuState extends StateBase {
+	var bg:FlxSprite;
+	var boxBelow:FlxSprite;
+	var logo:FlxSprite;
 
-    var ind_top:FlxSprite;
-    var ind_bot:FlxSprite;
+	var ind_top:FlxSprite;
+	var ind_bot:FlxSprite;
 
-    var particles:FlxSpriteGroup;
-    var menuGroup:FlxTypedGroup<FlxText>;
-    var tri_top:FlxSprite; // Triangle Top
-    var tri_bot:FlxSprite; // Triangle Bottom
+	var particles:FlxSpriteGroup;
+	var menuGroup:FlxTypedGroup<FlxText>;
+	var tri_top:FlxSprite; // Triangle Top
+	var tri_bot:FlxSprite; // Triangle Bottom
 
-    var curSelected:Int = 0;
-    var options:Map<String, Void->Void> = [
-        "options" => ()->trace("wawer"),
-        "play" => ()->FlxG.switchState(new MenuDebugState()),
-        "edit" => ()->trace("no pls")
-    ];
+	var curSelected:Int = 0;
+	var options:Array<Dynamic> = [
+		["options", () -> trace("wawer")],
+		["play", () -> FlxG.switchState(new MenuDebugState())],
+		["edit", () -> trace("wawer")]
+	];
 
-    var canInteract:Bool = false;
-    override function create() {
-        var _scaleDiff:Float = 1 - IntroState._scaleDec;
+	var canInteract:Bool = false;
 
-        // Objects
-        bg = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.WHITE], 1, 90, true);
+	override function create() {
+		var _scaleDiff:Float = 1 - IntroState._scaleDec;
+
+		// Objects
+		bg = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.WHITE], 1, 90, true);
 		bg.alpha = 0;
 		add(bg);
 
-        particles = new FlxSpriteGroup();
-        add(particles);
+		particles = new FlxSpriteGroup();
+		add(particles);
 
-        boxBelow = new FlxSprite().makeGraphic(Std.int(IntroState._boxSize * _scaleDiff), Std.int(IntroState._boxSize * _scaleDiff));
-        boxBelow.screenCenter();
-        add(boxBelow);
+		boxBelow = new FlxSprite().makeGraphic(Std.int(IntroState._boxSize * _scaleDiff), Std.int(IntroState._boxSize * _scaleDiff));
+		boxBelow.screenCenter();
+		add(boxBelow);
 
-        menuGroup = new FlxTypedGroup<FlxText>();
-        add(menuGroup);
+		menuGroup = new FlxTypedGroup<FlxText>();
+		add(menuGroup);
 
-        generateOptions();
-        
-        logo = new FlxSprite().loadGraphic(Assets.image("menu/logo"));
-        logo.screenCenter(X);
-        logo.y = 30;
-        logo.scale.set(0.6,0.6);
-        logo.visible = false;
-        add(logo);
+		generateOptions();
 
-        var scaleXTarget:Float = (FlxG.width * 0.75) / boxBelow.width;
-        var scaleYTarget:Float = (boxBelow.height - 30) / boxBelow.height;
+		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo"));
+		logo.screenCenter(X);
+		logo.y = 30;
+		logo.scale.set(0.6, 0.6);
+		logo.visible = false;
+		add(logo);
 
-        trace("x: " + scaleXTarget + " // y: " + scaleYTarget);
+		var scaleXTarget:Float = (FlxG.width * 0.75) / boxBelow.width;
+		var scaleYTarget:Float = (boxBelow.height - 30) / boxBelow.height;
 
-        FlxTween.tween(boxBelow, {alpha: 0.3}, 1, {ease: FlxEase.expoInOut});
-        FlxTween.tween(boxBelow.scale, {x: scaleXTarget, y: scaleYTarget}, 1, {ease: FlxEase.expoInOut, onComplete: (_)->{
-            trace("everything should work by now");
-            startMenu();
-        }});
-        
-        super.create();
-    }
+		trace("x: " + scaleXTarget + " // y: " + scaleYTarget);
 
-    function generateOptions() {
-        var n:Int = 0;
-        for (name => _ in options) {
-            var txt:FlxText = new FlxText(0,0,-1,name.toUpperCase(),8);
-            txt.setFormat(Assets.font("extenro-bold"),18,FlxColor.WHITE,CENTER);
-            txt.x = ((FlxG.width - txt.width) * 0.5) + ((130) * (curSelected-n));
-            txt.alpha = 0;
-            txt.active = false;
-            txt.ID = n;
-            menuGroup.add(txt);
-            n++;
-        }
+		FlxTween.tween(boxBelow, {alpha: 0.3}, 1, {ease: FlxEase.expoInOut});
+		FlxTween.tween(boxBelow.scale, {x: scaleXTarget, y: scaleYTarget}, 1, {
+			ease: FlxEase.expoInOut,
+			onComplete: (_) -> {
+				trace("everything should work by now");
+				startMenu();
+			}
+		});
 
-        tri_top = new FlxSprite().loadGraphic(Assets.image("ui/triangle"));
-        tri_top.screenCenter(X);
-        tri_top.y = boxBelow.y - (tri_top.height+5);
-        tri_top.flipY = true;
-        add(tri_top);
+		super.create();
+	}
 
-        tri_bot = new FlxSprite().loadGraphic(Assets.image("ui/triangle"));
-        tri_bot.screenCenter(X);
-        tri_bot.y = boxBelow.y + boxBelow.height + 5;
-        add(tri_bot);
+	function generateOptions() {
+		for (index => data in options) {
+			var txt:FlxText = new FlxText(0, 0, -1, data[0].toUpperCase(), 8);
+			txt.setFormat(Assets.font("extenro-bold"), 18, FlxColor.WHITE, CENTER);
+			txt.x = ((FlxG.width - txt.width) * 0.5) + ((130) * (curSelected - index));
+			txt.alpha = 0;
+			txt.active = false;
+			txt.ID = index;
+			menuGroup.add(txt);
+		}
 
-        tri_bot.alpha = tri_top.alpha = 0;
+		tri_top = new FlxSprite().loadGraphic(Assets.image("ui/triangle"));
+		tri_top.screenCenter(X);
+		tri_top.y = boxBelow.y - (tri_top.height + 5);
+		tri_top.flipY = true;
+		add(tri_top);
 
-        curSelected = 0;
-    }
+		tri_bot = new FlxSprite().loadGraphic(Assets.image("ui/triangle"));
+		tri_bot.screenCenter(X);
+		tri_bot.y = boxBelow.y + boxBelow.height + 5;
+		add(tri_bot);
 
-    function startMenu() {
+		tri_bot.alpha = tri_top.alpha = 0;
 
-        var logo_yDec:Float = 50;
+		add(new Profile(200,200));
 
-        logo.y -= logo_yDec;
-        FlxFlicker.flicker(logo, 1,0.02,true);
-        FlxTween.tween(logo, {y:logo.y+logo_yDec}, 1, {ease:FlxEase.expoInOut, onComplete: (_)->{
-            canInteract = true;
-            for (obj in [tri_bot, tri_top]) {
-                FlxTween.tween(obj, {alpha: 1}, 1, {ease: FlxEase.expoOut});
-            }
-        }});
+		curSelected = 0;
+	}
 
+	function startMenu() {
+		var logo_yDec:Float = 50;
 
-    }
+		logo.y -= logo_yDec;
+		FlxFlicker.flicker(logo, 0.5, 0.02, true);
+		FlxTween.tween(logo, {y: logo.y + logo_yDec}, 0.5, {
+			ease: FlxEase.expoInOut,
+			onComplete: (_) -> {
+				canInteract = true;
+				for (obj in [tri_bot, tri_top]) {
+					FlxTween.tween(obj, {alpha: 1}, 1, {ease: FlxEase.expoOut});
+				}
+			}
+		});
+	}
 
-    override function update(elapsed:Float) {
-        super.update(elapsed);
-        if (FlxG.keys.justPressed.SPACE) {
-            FlxG.resetState();
-        }
+	var confirmed:Bool = false;
 
-        if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT){
-            tri_top.y -= 10; // stupid
-            tri_bot.y += 10;
-            curSelected = FlxMath.wrap(curSelected+(FlxG.keys.justPressed.LEFT ? 1 : -1), 0, Lambda.count(options)-1);
-        } 
-        menuUpdate(elapsed);
-    }
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+		if (FlxG.keys.justPressed.SPACE) {
+			FlxG.resetState();
+		}
 
-    var _timePassed:Float = 0;
-    var _timeTracked:Float = 0;
-    function menuUpdate(elapsed:Float) {
-        if (!canInteract) return;
+		if (!confirmed) {
+			if (FlxG.keys.justPressed.ENTER) {
+				confirmed = true;
+                for (obj in menuGroup.members) {
+                    if (curSelected == obj.ID) {
+                        FlxFlicker.flicker(obj,1, 0.04,false,true,(_)->{
+                            options[curSelected][1]();   
+                        });
+                    } else {
+                        FlxTween.tween(obj, {alpha:0}, 1);
+                    }
+                }
+			}
 
-        _timePassed += elapsed;
-        bg.alpha = (Math.sin(_timePassed)*0.1);
+			if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT) {
+				tri_top.y -= 10; // stupid
+				tri_bot.y += 10;
+				curSelected = FlxMath.wrap(curSelected + (FlxG.keys.justPressed.LEFT ? 1 : -1), 0, options.length - 1);
+			}
+		}
 
-        // Particle Generator (funny)
-        if (_timePassed - _timeTracked > FlxG.random.float(0.4,1.3)) {
-            _timeTracked = _timePassed;
-            var s:FlxSprite = new FlxSprite(FlxG.random.float(0,FlxG.width),FlxG.height+FlxG.random.float(30,50)).makeGraphic(10,10);
-            var scaling:Float = FlxG.random.float(0.1,1.2);
-            s.active = false;
-            s.scale.set(scaling,scaling);
-            particles.add(s);
-        }
+		menuUpdate(elapsed);
+	}
 
-        particles.forEachAlive((spr:FlxSprite) -> {
-            spr.y -= (100*spr.scale.x)*elapsed;
-            spr.angle += (150*spr.scale.x)*elapsed;
-            if (spr.y < -20) {
-                spr.destroy();
-                remove(spr);
-            }
-        });
+	var _timePassed:Float = 0;
+	var _timeTracked:Float = 0;
 
-        // Menu Texts 
-        var lerpFactor:Float = 1-(elapsed*12);
-        for (obj in menuGroup.members) {
-            var diff:Int = curSelected - obj.ID;
-            obj.screenCenter(Y);
+	function menuUpdate(elapsed:Float) {
+		if (!canInteract)
+			return;
 
-            obj.x = FlxMath.lerp(((FlxG.width - obj.width) * 0.5) + ((130) * diff),obj.x,lerpFactor);
-            obj.alpha = FlxMath.lerp(curSelected == obj.ID ? 1 : 0.4, obj.alpha, lerpFactor);
-            obj.scale.x = obj.scale.y = FlxMath.lerp(curSelected == obj.ID ? 1 : 0.7,obj.scale.x,lerpFactor);
-        }
+		_timePassed += elapsed;
+		bg.alpha = (Math.sin(_timePassed) * 0.1);
 
-        // Menu Triangles
-        tri_top.y = FlxMath.lerp(boxBelow.y - (tri_top.height + 5), tri_top.y, lerpFactor);
-        tri_bot.y = FlxMath.lerp(boxBelow.y + boxBelow.height + 5, tri_bot.y, lerpFactor);
-    }
+		// Particle Generator (funny)
+		if (_timePassed - _timeTracked > FlxG.random.float(0.4, 1.3)) {
+			_timeTracked = _timePassed;
+			var s:FlxSprite = new FlxSprite(FlxG.random.float(0, FlxG.width), FlxG.height + FlxG.random.float(30, 50)).makeGraphic(10, 10);
+			var scaling:Float = FlxG.random.float(0.1, 1.2);
+			s.active = false;
+			s.scale.set(scaling, scaling);
+			particles.add(s);
+		}
+
+		particles.forEachAlive((spr:FlxSprite) -> {
+			spr.y -= (100 * spr.scale.x) * elapsed;
+			spr.angle += (150 * spr.scale.x) * elapsed;
+			if (spr.y < -20) {
+				spr.destroy();
+				remove(spr);
+			}
+		});
+
+		// Menu Texts
+		var lerpFactor:Float = 1 - (elapsed * 12);
+		for (obj in menuGroup.members) {
+			var diff:Int = curSelected - obj.ID;
+			obj.screenCenter(Y);
+
+			obj.x = FlxMath.lerp(((FlxG.width - obj.width) * 0.5) + ((130) * diff), obj.x, lerpFactor);
+			if (!confirmed) obj.alpha = FlxMath.lerp(curSelected == obj.ID ? 1 : 0.4, obj.alpha, lerpFactor);
+			obj.scale.x = obj.scale.y = FlxMath.lerp(curSelected == obj.ID ? 1 : 0.7, obj.scale.x, lerpFactor);
+		}
+
+		// Menu Triangles
+		tri_top.y = FlxMath.lerp(boxBelow.y - (tri_top.height + 5), tri_top.y, lerpFactor);
+		tri_bot.y = FlxMath.lerp(boxBelow.y + boxBelow.height + 5, tri_bot.y, lerpFactor);
+	}
 }

@@ -23,4 +23,12 @@ class Game {
         trace("Unsupported platform! Dark mode property remains unchanged.");
         #end
     }
+
+    public static function setDPIAware() {
+        #if windows
+        Windows.setDPIAware();
+        #else
+        trace("This target is currently unsupported for DPI Aware Mode.");
+        #end
+    }
 }

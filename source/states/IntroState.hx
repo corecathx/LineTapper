@@ -1,5 +1,6 @@
 package states;
 
+import game.Utils;
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -19,6 +20,7 @@ class IntroState extends FlxState {
 
 	override function create():Void
 	{
+        Utils.initialize();
         haxe.Timer.measure(()->{
             loadIntro();
             animateIntro();

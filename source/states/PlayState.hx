@@ -13,7 +13,7 @@ import objects.ArrowTile;
 import objects.Player;
 import sys.io.File;
 
-class PlayState extends FlxState
+class PlayState extends StateBase
 {
 	public static var current:PlayState;
 

@@ -13,6 +13,9 @@ class Main extends Sprite
 	{
 		super();
 		_conductor = new Conductor();
+
+		Game.setDPIAware();
+
 		addChild(new FlxGame(0, 0, states.IntroState, 120,120,true,false));
 		addChild(new objects.SystemInfo(10,10,0xFFFFFF,false));
 		FlxG.fixedTimestep = FlxG.autoPause = false;
