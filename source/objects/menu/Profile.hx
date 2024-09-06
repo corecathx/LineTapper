@@ -27,12 +27,19 @@ class Profile extends FlxSprite {
     }
     public var nWidth(get,default):Float = 0;
     function get_nWidth():Float {
-        return width + 10 + Math.max(_txt_displayName.width,_txt_indicator.width) + 80;
+        var w:Float = width + 10 + 80;
+        if (_txt_displayName == null || _txt_indicator == null)
+            return w;
+
+        w += Math.max(_txt_displayName.width,_txt_indicator.width);
+        return w;
     }
     var _txt_displayName:FlxText;
     var _txt_indicator:FlxText;
     var _parent_effect:FlxSkewedSprite;
     var _effect_grp:Array<Dynamic> = [];
+
+    var ready:Bool = false;
 
     public function new(nX:Float = 0, nY:Float = 0) {
         super(nX,nY);
@@ -53,6 +60,7 @@ class Profile extends FlxSprite {
             _txt_displayName.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE);
             _txt_indicator = new FlxText(0,0,-1,"OFFLINE",30);
             _txt_indicator.setFormat(Assets.font("extenro-bold"), 8, FlxColor.GRAY);
+            ready = true;
         });
         img.load(new URLRequest(Utils.PLAYER.profile_url));
 
@@ -66,6 +74,7 @@ class Profile extends FlxSprite {
 
     override function update(elapsed:Float) {
         super.update(elapsed);
+        if (!ready) return;
         drawWait += elapsed;
         if (drawWait < 0.3) return;
         drawWait = 0;
@@ -79,6 +88,7 @@ class Profile extends FlxSprite {
 
     override function draw() {
         super.draw();
+        if (!ready) return;
         _txt_displayName.setPosition(x+width+10,y+5);
         _txt_displayName.draw();
 

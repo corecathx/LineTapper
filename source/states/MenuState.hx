@@ -153,6 +153,7 @@ class MenuState extends StateBase {
 			}
 
 			if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT) {
+				FlxG.sound.play(Assets.sound("menu/key_press"));
 				tri_top.y -= 10; // stupid
 				tri_bot.y += 10;
 				curSelected = FlxMath.wrap(curSelected + (FlxG.keys.justPressed.LEFT ? 1 : -1), 0, options.length - 1);

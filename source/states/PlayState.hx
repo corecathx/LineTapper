@@ -1,5 +1,6 @@
 package states;
 
+import game.backend.script.ScriptGroup;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.display.FlxTiledSprite;
@@ -30,6 +31,8 @@ class PlayState extends StateBase
 	public var player:Player;
 	public var tile_group:FlxTypedGroup<ArrowTile>;
 
+	public var scripts:ScriptGroup;
+
 	var bg_gradient:FlxSprite;
 	var bg:FlxBackdrop;
 
@@ -52,6 +55,9 @@ class PlayState extends StateBase
 	{
 		current = this;
 
+		scripts = new ScriptGroup('${Assets._MAP_PATH}/$songName/scripts/');
+		scripts.executeFunc("create");
+
 		initCameras();
 		loadGameplay();
 		loadHUD();
@@ -60,6 +66,7 @@ class PlayState extends StateBase
 		camFollow = new FlxObject(player.x, player.y - 100, 1, 1);
 		add(camFollow);
 		FlxG.camera.follow(camFollow, LOCKON);
+		scripts.executeFunc("postCreate");
 		super.create();
 	}
 
@@ -69,6 +76,7 @@ class PlayState extends StateBase
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
 			FlxG.switchState(new MenuState());
+			Conductor.current.onBeatTick.remove(beatTick);
 		}
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
@@ -113,11 +121,7 @@ class PlayState extends StateBase
 		}
 
 		Conductor.current.updateBPM(linemap.bpm);
-		Conductor.current.onBeatTick.add(() ->
-		{
-			if (player != null)
-				player.scale.x = player.scale.y += 0.3;
-		});
+		Conductor.current.onBeatTick.add(beatTick);
 
 		// trace("Tile group length: " + tile_group.length);
 	}
@@ -163,6 +167,7 @@ class PlayState extends StateBase
 	public var hitStatus:String = "";
 	override public function update(elapsed:Float)
 	{
+		scripts.executeFunc("update", [elapsed]);
 		if (FlxG.sound.music != null && FlxG.sound.music.playing){
 			Conductor.current.time = FlxG.sound.music.time;
 			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
@@ -182,6 +187,10 @@ class PlayState extends StateBase
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;
+		}
+
+		if (FlxG.keys.justPressed.ESCAPE) {
+			FlxG.switchState(new MenuState());
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
@@ -232,6 +241,7 @@ class PlayState extends StateBase
 			});
 		}
 		super.update(elapsed);
+		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
 	public function onTileHit(tile:ArrowTile)
@@ -242,5 +252,10 @@ class PlayState extends StateBase
 		combo++;
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
+	}
+
+	public function beatTick() {
+		if (player != null)
+			player.scale.x = player.scale.y += 0.3;
 	}
 }
