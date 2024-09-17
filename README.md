@@ -1,7 +1,8 @@
-# LineTapper (WIP)
+# LineTapper: Project Lunar (WIP)
 ![LineTapper_Logo](resource/logo.png)
 
 A rhythm game project by CoreCat.
+
 > Made using [HaxeFlixel](https://haxeflixel.com/)
 
 ## Building Guide
@@ -13,3 +14,4 @@ To build the game, simply run `lime test hl` or `lime test windows` inside the p
 ## Information
 > This is a project I started making in June 17th 2024, It's inspired by this weird thing while I'm playing Roblox lol.\
 ![Hmm idea](resource/where-i-got-the-idea-from.gif)
+> 
