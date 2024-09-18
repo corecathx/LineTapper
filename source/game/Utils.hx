@@ -12,9 +12,8 @@ class Utils {
      */
     public static var HAXE_EXT:Array<String> = ["hx","hxs","hscript"];
     public static function checkHXS(filename:String) {
-        for (i in HAXE_EXT) {
+        for (i in HAXE_EXT)
             if (filename.endsWith(i)) return true;
-        }
         return false;
     }
 
@@ -24,9 +23,7 @@ class Utils {
     public static var PLAYER:User = null;
 
     public static final TRANSITION_TIME:Float = 1;
-    public static function switchState(state:FlxState, ?transIn){
-
-    }
+    public static function switchState(state:FlxState, ?transIn){} // Tf is this for???
 
     public static function initialize():Void {
         loadUser();

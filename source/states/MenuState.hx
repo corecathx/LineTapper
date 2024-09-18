@@ -58,7 +58,7 @@ class MenuState extends StateBase {
 
 		generateOptions();
 
-		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo"));
+		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo-pl"));
 		logo.screenCenter(X);
 		logo.y = 30;
 		logo.scale.set(0.6, 0.6);
@@ -173,6 +173,7 @@ class MenuState extends StateBase {
 		_timePassed += elapsed;
 		bg.alpha = (Math.sin(_timePassed) * 0.1);
 
+        // There is FlxEmitter for a reason, Core. I'm remaking this the intended way later.
 		// Particle Generator (funny)
 		if (_timePassed - _timeTracked > FlxG.random.float(0.4, 1.3)) {
 			_timeTracked = _timePassed;
