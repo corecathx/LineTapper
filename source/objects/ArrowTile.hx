@@ -14,6 +14,10 @@ class ArrowTile extends FlxSprite {
 	 * Arrow direction of this tile points at. (`PlayerDirection`)
 	 */
 	public var direction:PlayerDirection = DOWN;
+    /**
+     * Variable to assist with miss handling.
+     */
+    public var checked:Bool = false;
 	/**
 	 * This tile's Step time.
 	 */
@@ -66,7 +70,7 @@ class ArrowTile extends FlxSprite {
 
 	var _angleAdd:Float = 0;
     override function update(elapsed:Float) {
-		if (Conductor.current.current_steps + 10 > step && Conductor.current.current_steps < step && alpha < 1)
+		if (Conductor.instance.current_steps + 10 > step && Conductor.instance.current_steps < step && alpha < 1)
 		{
 			alpha += 2 * elapsed;
 		} else {
