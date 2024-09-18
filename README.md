@@ -1,5 +1,5 @@
 # LineTapper: Project Lunar (WIP)
-![LineTapper_Logo](resource/logo.png)
+![LineTapper_Logo](resource/logo-pl.png)
 
 A rhythm game project by CoreCat.
 
