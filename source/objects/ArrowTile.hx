@@ -7,9 +7,34 @@ import objects.Player.PlayerDirection;
 import openfl.display.BitmapData;
 
 /**
+ * Arrow Tile colors from the map.
+ */
+typedef TileColorData = {
+    var zero:String;
+    var one:String;
+    var two:String;
+    var three:String;
+    var fallback:String;
+}
+
+/**
  * Arrow Tile object, used during gameplay.
  */
 class ArrowTile extends FlxSprite {
+    /**
+    * Value for the tile color data.
+    */
+    public var tileColorData:TileColorData = {
+        zero: '0xFFFF8800',
+        one: '0xFFFBFF00',
+        two: '0xFF00EEFF',
+        three: '0xFFFF00FF',
+        fallback: '0xFFFFFFFF'
+    };
+    /**
+	 * If this tile updates its color each frame.
+	 */
+    public var canUpdateColors:Bool = true;
 	/**
 	 * Arrow direction of this tile points at. (`PlayerDirection`)
 	 */
@@ -40,20 +65,18 @@ class ArrowTile extends FlxSprite {
 	 * @param nY Y Position
 	 * @param dir Arrow direction of this tile points at.
 	 * @param curStep This tile's Step time.
+     * @param tileColorData Color Data for this ArrowTile.
 	 */
-    public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int) {
+    public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int, ?tileColorData:TileColorData) {
         super(nX,nY);
         step = curStep;
 		direction = dir;
+        trace(tileColorData);
+        if (tileColorData != null)
+            this.tileColorData = tileColorData;
+
 		loadGraphic(Assets.image("ArrowTile"));
-		color = switch (step % 4)
-		{
-			case 0: 0xFFFF8800;
-			case 1: 0xFFFBFF00;
-			case 2: 0xFF00EEFF;
-			case 3: 0xFFFF00FF;
-			default: 0xFFFFFFFF;
-		}
+		updateColors();
 
         switch (dir) {
             case LEFT:
@@ -68,6 +91,18 @@ class ArrowTile extends FlxSprite {
         alpha = 0;
     }
 
+    public function updateColors()
+    {
+        color = switch (step % 4)
+		{
+			case 0: FlxColor.fromString(tileColorData.zero);
+			case 1: FlxColor.fromString(tileColorData.one);
+			case 2: FlxColor.fromString(tileColorData.two);
+			case 3: FlxColor.fromString(tileColorData.three);
+			default: FlxColor.fromString(tileColorData.fallback);
+		}
+    }
+
 	var _angleAdd:Float = 0;
     override function update(elapsed:Float) {
 		if (Conductor.instance.current_steps + 10 > step && Conductor.instance.current_steps < step && alpha < 1)
@@ -79,6 +114,7 @@ class ArrowTile extends FlxSprite {
 	
 
 		if (missed) {
+            canUpdateColors = false;
 			color = FlxColor.RED;
 			scale.set(scale.x - (2 * elapsed), scale.y - (2 * elapsed));
 			angle += _angleAdd * elapsed;
@@ -92,7 +128,8 @@ class ArrowTile extends FlxSprite {
 		if (!missed && !already_hit) {
 			_angleAdd = FlxG.random.float(-90, 90);
 		}
-
+        if (canUpdateColors)
+            updateColors();
         super.update(elapsed);
     }
 }

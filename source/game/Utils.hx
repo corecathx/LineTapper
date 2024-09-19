@@ -49,7 +49,7 @@ class Utils {
             id: 1,
             username: "corecathx",
             display: "CoreCat",
-            profile_url: "https://cdn.discordapp.com/avatars/694791036094119996/08795150028fbab041c2cc9359bc5e43.png?size=1024"
+            profile_url: null
         }
     }
 }
