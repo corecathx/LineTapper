@@ -1,5 +1,10 @@
 package game.backend.script;
 
+import states.PlayState;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.util.FlxTimer;
+import flixel.util.FlxTimer;
 import haxe.io.Path;
 import hscript.Expr;
 import hscript.Parser;
@@ -100,11 +105,17 @@ class Script {
         interp.variables.set(name, val);
     }
 
+    function trace(v:String)
+    {
+        ScriptUtil.trace(interp, filename, v);
+    }
+
     /**
      * Initializes the script with bunch of variables.
      */
     public function initialize() {
-        setVariable("game", FlxG.state);
+        setVariable("PlayState", PlayState.instance);
+        setVariable("StaticPlayState", PlayState); // Don't know why this is useful but just in case..
         setVariable("trace", this.trace);
         setVariable("addLib", function(className:String) // Similar to haxe's "import"
         {
@@ -129,19 +140,11 @@ class Script {
                 this.trace("Imported " + splitClassName[splitClassName.length - 1]);
             }
         });
-
-        // Stuffs //
         setVariable("FlxSprite", FlxSprite);
+		setVariable('FlxCamera', FlxCamera);
+		setVariable('FlxTimer', FlxTimer);
+		setVariable('FlxTween', FlxTween);
+		setVariable('FlxEase', FlxEase);
+        setVariable('add', ScriptUtil.add);
     }
-
-    /** Some stuff that might be useful for scripting. **/
-    public function trace(data:Dynamic) {
-        var posInfo = interp.posInfos();
-		posInfo.className = "HScript - "+filename+".hx";
-
-		var lineNumber = Std.string(posInfo.lineNumber);
-		var methodName = posInfo.methodName;
-		var className = posInfo.className;
-		trace('$filename:$lineNumber: $data', posInfo);
-    } 
 }

@@ -9,7 +9,7 @@ import flixel.tweens.FlxTween;
  * That one animation that starts when the game boots up.
  */
 class IntroState extends FlxState {
-    public static var _boxSize:Int = 100;
+    public static var _boxSize:Int = 72;
     public static var _scaleDec:Float = 0.3;
 
 	var playerBox:FlxSprite;
@@ -79,6 +79,7 @@ class IntroState extends FlxState {
                         FlxTween.tween(ltText, {y: ltText.y+_tweenXOffset}, 0.5, {ease:FlxEase.expoOut, onComplete:(_)->{
                             ltText.text = "LOADING...";
                             ltText.screenCenter(X);
+                            ltText.x += 10;
                             ltText.alpha = 0;
                             FlxTween.tween(ltText, {y: ltText.y-_tweenXOffset, alpha:1}, 0.5, {ease:FlxEase.expoOut});
                             FlxTween.tween(playerBox.scale, {x: playerBox.scale.x - _scaleDec, y: playerBox.scale.y - _scaleDec}, 0.5, {ease:FlxEase.expoOut});

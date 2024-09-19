@@ -41,15 +41,17 @@ class Player extends FlxSprite {
 	override function update(elapsed:Float) {
 		updateProperties();
 		// updateControls();
-		updateMovement(elapsed);
+        if (!PlayState.instance.songEnded)
+		    updateMovement(elapsed);
+
 		handleTrails(elapsed);
 		updateScale(elapsed);
 		super.update(elapsed);
 	}
 
 	function updateProperties() {
-		if (Conductor.current != null)
-			currentStep = Conductor.current.current_steps;
+		if (Conductor.instance != null)
+			currentStep = Conductor.instance.current_steps;
 	}
 
 	public function updateScale(e:Float) {
@@ -108,8 +110,8 @@ class Player extends FlxSprite {
 				for (i in c.keys) if (!pressed) pressed = FlxG.keys.checkStatus(i, JUST_PRESSED);
 				if (pressed) {
 					direction = c.dir;
-					states.PlayState.current.combo++;
-					states.PlayState.current.scoreBoard.scale.x+=0.3;
+					states.PlayState.instance.combo++;
+					states.PlayState.instance.scoreBoard.scale.x+=0.3;
 
 					FlxG.camera.zoom += 0.05;
 				}
@@ -157,33 +159,34 @@ class Player extends FlxSprite {
 			nextStep = nextTile.step;
 			nextDirection = nextTile.direction;
 
-			var tileTime:Float = nextTile.step * Conductor.current.step_ms;
-			var hitable:Bool = tileTime > Conductor.current.time - (Conductor.current.safe_zone_offset * 1.5)
-				&& tileTime < Conductor.current.time + (Conductor.current.safe_zone_offset * 0.25);
+			var tileTime:Float = nextTile.step * Conductor.instance.step_ms;
+			var hitable:Bool = tileTime > Conductor.instance.time - (Conductor.instance.safe_zone_offset * 1.5)
+				&& tileTime < Conductor.instance.time + (Conductor.instance.safe_zone_offset * 0.25);
 
-			var timeDiff:Float = tileTime - Conductor.current.time; // + is early, - is late.
+			var timeDiff:Float = tileTime - Conductor.instance.time; // + is early, - is late.
 			// i want to die :sob:
-			var tOffset:Float = timeDiff * (50 / Conductor.current.step_ms) * states.PlayState.current.speedRate;
+			var tOffset:Float = timeDiff * (50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
 					nextTile.already_hit = true;
-					PlayState.current.hitStatus = "PERFECT!!";
-					PlayState.current.onTileHit(nextTile);
-					onHitPropertyChange(nextTile, tOffset, true);
+					PlayState.instance.hitStatus = "PERFECT!!";
+					PlayState.instance.onTileHit(nextTile);
+					//onHitPropertyChange(nextTile, tOffset, true);
 				}
-			} else if (!nextTile.missed && tileTime < Conductor.current.time - (Conductor.current.safe_zone_offset * 0.2)) {
+			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.2)) {
 				trace("MISSED!!!");
-				PlayState.current.hitStatus = "MISSED...";
-				PlayState.current.combo = 0;
+                PlayState.instance.misses++;
+				PlayState.instance.hitStatus = "MISSED!";
+				PlayState.instance.combo = 0;
 				nextTile.missed = true;
                 
-				onHitPropertyChange(nextTile, tOffset, false);
+				//onHitPropertyChange(nextTile, tOffset, false);
 			}
 		}
 	}
 
-	function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
+	public function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
 		var xPos:Float = nextTile.x;
 		var yPos:Float = nextTile.y;
 
@@ -214,7 +217,7 @@ class Player extends FlxSprite {
 
 		elapsed *= 1000;
 
-		var moveVel:Float = ((50 / Conductor.current.step_ms) * states.PlayState.current.speedRate) * elapsed;
+		var moveVel:Float = ((50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
 
 		switch (direction) {
 			case PlayerDirection.LEFT:

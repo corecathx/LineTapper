@@ -1,5 +1,8 @@
 package states;
 
+import flixel.effects.FlxFlicker;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 import game.backend.script.ScriptGroup;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
@@ -14,14 +17,24 @@ import objects.ArrowTile;
 import objects.Player;
 import sys.io.File;
 
+typedef Rating = {
+    var count:Int;
+    var arrowTiles:Array<ArrowTile>;
+}
+
 class PlayState extends StateBase
 {
-	public static var current:PlayState;
+	public static var instance:PlayState;
 
 	public var songName:String = "Tutorial";
+    public var songEnded:Bool = false;
+    public var misses:Int = 0;
+    public var hits:Int = 0;
+    public var ratings:Map<String, Rating>;
 
 	public var linemap:LineMap;
 	public var speedRate:Float = 1;
+    public var hasEndTransition:Bool = true;
 
 	public var scoreBoard:FlxText;
 	public var combo:Int = 0;
@@ -33,12 +46,12 @@ class PlayState extends StateBase
 
 	public var scripts:ScriptGroup;
 
-	var bg_gradient:FlxSprite;
-	var bg:FlxBackdrop;
+	public var bg_gradient:FlxSprite;
+	public var bg:FlxBackdrop;
 
-	var gameCamera:FlxCamera;
-	var hudCamera:FlxCamera;
-	var using_autoplay:Bool = false;
+	public var gameCamera:FlxCamera;
+	public var hudCamera:FlxCamera;
+	public var using_autoplay:Bool = false;
 
 	/**
 	 * Prepares `PlayState` to load and play `song` file.
@@ -53,7 +66,7 @@ class PlayState extends StateBase
 
 	override public function create()
 	{
-		current = this;
+		instance = this;
 
 		scripts = new ScriptGroup('${Assets._MAP_PATH}/$songName/scripts/');
 		scripts.executeFunc("create");
@@ -62,6 +75,13 @@ class PlayState extends StateBase
 		loadGameplay();
 		loadHUD();
 
+        ratings = new Map<String, Rating>();
+        ratings = [
+            'Perfect' => {count: 0, arrowTiles: []},
+            'Cool' => {count: 0, arrowTiles: []},
+            'Meh' => {count: 0, arrowTiles: []}
+        ];
+        
 		loadSong();
 		camFollow = new FlxObject(player.x, player.y - 100, 1, 1);
 		add(camFollow);
@@ -70,13 +90,40 @@ class PlayState extends StateBase
 		super.create();
 	}
 
+    override public function destroy()
+    {
+        super.destroy();
+        scripts.executeFunc("destroy");
+    }
+
+    function endSong()
+    {
+        if (hasEndTransition){
+            FlxTween.tween(bg_gradient, {alpha: 0}, 1);
+            FlxTween.tween(scoreBoard, {alpha: 0}, 1);
+            FlxTween.tween(bg, {alpha: 0}, 1);
+            new FlxTimer().start(1, function(tmr:FlxTimer)
+            {
+                FlxFlicker.flicker(player, 0.5, 0.02, true);
+            });
+            new FlxTimer().start(1.5, function(tmr:FlxTimer)
+            {
+                FlxG.switchState(new MenuState());
+		        Conductor.instance.onBeatTick.remove(beatTick);
+            });
+        }else{
+            FlxG.switchState(new MenuState());
+		    Conductor.instance.onBeatTick.remove(beatTick);
+        }
+    }
+
 	function loadSong()
 	{
 		var mapAsset:MapAsset = Assets.map(songName);
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
-			FlxG.switchState(new MenuState());
-			Conductor.current.onBeatTick.remove(beatTick);
+            songEnded = true;
+			endSong();
 		}
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
@@ -92,7 +139,7 @@ class PlayState extends StateBase
 		{
 			// Calculate step difference
 			var stepDifference:Int = tile.step - curStep;
-			curStep = tile.step; // Update curStep to the current tile step
+			curStep = tile.step; // Update curStep to the instance tile step
 
 			var direction:PlayerDirection = cast tile.direction;
 
@@ -120,8 +167,8 @@ class PlayState extends StateBase
 			current_direction = direction;
 		}
 
-		Conductor.current.updateBPM(linemap.bpm);
-		Conductor.current.onBeatTick.add(beatTick);
+		Conductor.instance.updateBPM(linemap.bpm);
+		Conductor.instance.onBeatTick.add(beatTick);
 
 		// trace("Tile group length: " + tile_group.length);
 	}
@@ -169,7 +216,8 @@ class PlayState extends StateBase
 	{
 		scripts.executeFunc("update", [elapsed]);
 		if (FlxG.sound.music != null && FlxG.sound.music.playing){
-			Conductor.current.time = FlxG.sound.music.time;
+			Conductor.instance.time = FlxG.sound.music.time;
+            // my ass is NOT using 60% of my brain power to wrap my mind around this.. rewriting this later.
 			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
 		} else {
 			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
@@ -190,7 +238,9 @@ class PlayState extends StateBase
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE) {
+            FlxG.sound.music.stop();
 			FlxG.switchState(new MenuState());
+		    Conductor.instance.onBeatTick.remove(beatTick);
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
@@ -203,10 +253,10 @@ class PlayState extends StateBase
 			{
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if (Conductor.current.current_steps > tile.step - 1 && !tile.already_hit)
+					if (Conductor.instance.current_steps > tile.step - 1 && !tile.already_hit)
 						onTileHit(tile);
 
-					if (tile.already_hit && tile.step + 8 < Conductor.current.current_steps)
+					if (tile.already_hit && tile.step + 8 < Conductor.instance.current_steps)
 					{
 						tile.kill();
 						tile.destroy();
@@ -218,7 +268,11 @@ class PlayState extends StateBase
 
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.current.current_steps)
+                    if (Conductor.instance.current_steps > tile.step - 1 && !tile.checked){
+                        tile.checked = true;
+						player.onHitPropertyChange(tile, 0, false);
+                    }
+					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.instance.current_steps)
 					{
 						tile.kill();
 						tile.destroy();
@@ -233,7 +287,7 @@ class PlayState extends StateBase
 			}
 
 			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.current.current_steps < aT.step) return;
+				if (Conductor.instance.current_steps < aT.step) return;
 				if (!aT.hitsound_played) {
 					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
 					aT.hitsound_played = true;
@@ -244,15 +298,25 @@ class PlayState extends StateBase
 		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
-	public function onTileHit(tile:ArrowTile)
+	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
+        scripts.executeFunc("onTileHit", [tile]);
 		tile.already_hit = true;
-		player.direction = tile.direction;
-		if (using_autoplay) player.setPosition(tile.x, tile.y);
+        if (using_autoplay)
+		    updatePlayerPosition(tile);
 		combo++;
 		scoreBoard.scale.x += 0.3;
 		FlxG.camera.zoom += 0.05;
+        var rating = ratings.get(ratingName);
+        rating.count++;
+        rating.arrowTiles.push(tile);
+        scripts.executeFunc("postTileHit", [tile]);
 	}
+
+    public function updatePlayerPosition(tile:ArrowTile){
+        player.direction = tile.direction;
+		player.setPosition(tile.x, tile.y);
+    }
 
 	public function beatTick() {
 		if (player != null)
