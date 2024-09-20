@@ -1,10 +1,17 @@
 package game;
 
+import sys.thread.Thread;
 import sys.io.File;
 import sys.FileSystem;
 import objects.menu.Profile.User;
 
 using StringTools;
+
+typedef RBG = {
+	var red:Int;
+	var green:Int;
+	var blue:Int;
+}
 
 class Utils {
     /**
@@ -23,19 +30,10 @@ class Utils {
     public static var PLAYER:User = null;
 
     public static final TRANSITION_TIME:Float = 1;
-    public static function switchState(state:FlxState, ?transIn){} // Tf is this for???
+    public static function switchState(state:FlxState, ?transIn){}
 
     public static function initialize():Void {
         loadUser();
-    }
-
-    public static function tempAdd(file:String, content:String) {
-        if (!FileSystem.exists("./temp/")){
-            FileSystem.createDirectory("./temp/");
-        }
-        
-        File.saveContent(file,content);
-        trace("Saved sucessfully.");
     }
 
     public static function loadUser():Void {
