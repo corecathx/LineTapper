@@ -43,7 +43,7 @@ class Profile extends FlxSprite {
 
     public function new(nX:Float = 0, nY:Float = 0) {
         super(nX,nY);
-
+        return; // Will be removed later.
         // Loads the profile image
         trace("Preparing");
         var img:URLLoader = new URLLoader(new URLRequest(Utils.PLAYER.profile_url));

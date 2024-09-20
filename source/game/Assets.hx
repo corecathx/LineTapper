@@ -1,5 +1,6 @@
 package game;
 
+import game.MapData.MapAsset;
 import openfl.display3D.textures.RectangleTexture;
 import flixel.graphics.FlxGraphic;
 import game.MapData.LineMap;
@@ -8,12 +9,6 @@ import openfl.display.BitmapData;
 import openfl.media.Sound;
 import sys.FileSystem;
 import sys.io.File;
-
-typedef MapAsset =
-{
-	var audio:Sound;
-	var map:LineMap;
-}
 
 /**
  * Helper class for this game's assets.
