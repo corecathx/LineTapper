@@ -1,4 +1,4 @@
-package game.system;
+package game.native;
 
 /**
  * Native helper class for Windows.

@@ -41,7 +41,6 @@ class Player extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		updateProperties();
-		// updateControls();
         if (!PlayState.instance.songEnded)
 		    updateMovement(elapsed);
 
@@ -95,28 +94,6 @@ class Player extends FlxSprite {
 				trails.remove(i);
 			}
 		}
-	}
-
-	private function updateControls() {
-		/*if (!started) return;
-			var keys:Array<PlayerControls> = [
-				{keys: [FlxKey.A, FlxKey.LEFT], dir: PlayerDirection.LEFT},
-				{keys: [FlxKey.S, FlxKey.DOWN], dir: PlayerDirection.DOWN},
-				{keys: [FlxKey.W, FlxKey.UP], dir: PlayerDirection.UP},
-				{keys: [FlxKey.D, FlxKey.RIGHT], dir: PlayerDirection.RIGHT}
-			];
-
-			for (c in keys) {
-				var pressed:Bool = false;
-				for (i in c.keys) if (!pressed) pressed = FlxG.keys.checkStatus(i, JUST_PRESSED);
-				if (pressed) {
-					direction = c.dir;
-					states.PlayState.instance.combo++;
-					states.PlayState.instance.scoreBoard.scale.x+=0.3;
-
-					FlxG.camera.zoom += 0.05;
-				}
-		}*/
 	}
 
 	// remind me to rewrite this soon please

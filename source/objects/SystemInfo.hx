@@ -1,6 +1,6 @@
 package objects;
 
-import game.system.Windows;
+import game.native.NativeUtil;
 import flixel.FlxG;
 import flixel.math.FlxMath;
 import haxe.Timer;
@@ -66,7 +66,7 @@ class SystemInfo extends TextField
 		while (times[0] < now - 1)
 			times.shift();
 	
-		curMemory = Windows.getCurrentUsedMemory();
+		curMemory = NativeUtil.getUsedMemory();
 		curFps = times.length > 120 ? 120 : times.length;
 		
 		updateText();
