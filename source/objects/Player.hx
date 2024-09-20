@@ -16,6 +16,7 @@ enum abstract PlayerDirection(Int) {
 }
 
 class Player extends FlxSprite {
+	public static var BOX_SIZE:Int = 50;
 	public var direction:PlayerDirection = DOWN;
 	public var nextDirection:PlayerDirection = DOWN;
 
@@ -35,7 +36,7 @@ class Player extends FlxSprite {
 
 	public function new(nX:Float, nY:Float) {
 		super(nX, nY);
-		makeGraphic(50, 50, 0xFFFFFFFF);
+		makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
 	}
 
 	override function update(elapsed:Float) {
@@ -75,7 +76,7 @@ class Player extends FlxSprite {
 		_curTime += elapsed;
 
 		if (_curTime > trail_delay) {
-			var n:FlxSprite = new FlxSprite(x, y).makeGraphic(50, 50, 0xFFFFFFFF);
+			var n:FlxSprite = new FlxSprite(x, y).makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
 			n.alpha = 0.8;
 			n.active = false;
 			n.blend = ADD;
@@ -165,7 +166,7 @@ class Player extends FlxSprite {
 
 			var timeDiff:Float = tileTime - Conductor.instance.time; // + is early, - is late.
 			// i want to die :sob:
-			var tOffset:Float = timeDiff * (50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
+			var tOffset:Float = timeDiff * (BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
@@ -217,7 +218,7 @@ class Player extends FlxSprite {
 
 		elapsed *= 1000;
 
-		var moveVel:Float = ((50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
+		var moveVel:Float = ((BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
 
 		switch (direction) {
 			case PlayerDirection.LEFT:
@@ -234,9 +235,9 @@ class Player extends FlxSprite {
 		y += addY;
 
 		if (direction == PlayerDirection.LEFT || direction == PlayerDirection.RIGHT) {
-			y = Math.round(y / 50) * 50;
+			y = Math.round(y / BOX_SIZE) * BOX_SIZE;
 		} else if (direction == PlayerDirection.UP || direction == PlayerDirection.DOWN) {
-			x = Math.round(x / 50) * 50;
+			x = Math.round(x / BOX_SIZE) * BOX_SIZE;
 		}
 	}
 }
