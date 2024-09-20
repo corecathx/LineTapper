@@ -4,7 +4,7 @@ class StateBase extends FlxState {
     var _defaultCamera:FlxCamera;
     var _transIn:Bool = false;
     var _transText:String = "";
-    public function new(?transInEnabled:Bool = true, ?trans_name:String = "UNDEFINED") {
+    public function new(?transInEnabled:Bool = true, ?trans_name:String = "") {
         super();
         _transIn = transInEnabled;
         _transText = trans_name;
@@ -17,7 +17,9 @@ class StateBase extends FlxState {
     function initTransIn():Void {
         if (!_transIn) return; 
         var _transCam:FlxCamera = new FlxCamera();
-        FlxG.cameras.add(_transCam);
+        _transCam.bgColor = FlxColor.TRANSPARENT;
+        FlxG.cameras.add(_transCam, false);
+        
 
         var _tr_bg:FlxSprite = new FlxSprite().loadGraphic(Assets.image("ui/transition"));
         _tr_bg.cameras = [_transCam];
