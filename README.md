@@ -6,7 +6,6 @@ A rhythm game project by CoreCat.
 Project Lunar by ZSolarDev.
 > Made using [HaxeFlixel](https://haxeflixel.com/)
 
-## Building Guide
 > [!WARNING]  
 > The game is still active in Development, so there might be a lot of stuff changing from time to time.
 > Project Lunar is still very new, so new features might be buggy.
