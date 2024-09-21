@@ -285,14 +285,6 @@ class PlayState extends StateBase
 				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
-
-			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.instance.current_steps < aT.tile.step) return;
-				if (!aT.tile.hitsound_played) {
-					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-					aT.tile.hitsound_played = true;
-				}
-			});
 		}
 		super.update(elapsed);
 		scripts.executeFunc("postUpdate", [elapsed]);
@@ -300,18 +292,21 @@ class PlayState extends StateBase
 
 	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
-        scripts.executeFunc("onTileHit", [tile]);
-        tile.onTileHit();
-		tile.tile.already_hit = true;
-        if (using_autoplay)
-		    updatePlayerPosition(tile);
-		combo++;
-		scoreBoard.scale.x += 0.3;
-		FlxG.camera.zoom += 0.05;
-        var rating = ratings.get(ratingName);
-        rating.count++;
-        rating.arrowTiles.push(tile);
-        scripts.executeFunc("postTileHit", [tile]);
+        if (tile.tile != null && tile.squareTileEffect != null){
+            scripts.executeFunc("onTileHit", [tile]);
+            FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+            tile.onTileHit();
+		    tile.tile.already_hit = true;
+            if (using_autoplay)
+		        updatePlayerPosition(tile);
+		    combo++;
+		    scoreBoard.scale.x += 0.3;
+		    FlxG.camera.zoom += 0.05;
+            var rating = ratings.get(ratingName);
+            rating.count++;
+            rating.arrowTiles.push(tile);
+            scripts.executeFunc("postTileHit", [tile]);
+        }
 	}
 
     public function updatePlayerPosition(tile:ArrowTile){

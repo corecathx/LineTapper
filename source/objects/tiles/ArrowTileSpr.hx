@@ -46,8 +46,6 @@ import objects.Player.PlayerDirection;
 	 */
 	public var missed:Bool = false;
 
-	public var hitsound_played:Bool = false;
-
 	/**
 	 * Creates a new ArrowTile object.
 	 * @param nX X Position
