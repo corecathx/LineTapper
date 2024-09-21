@@ -1,7 +1,7 @@
 package game;
 
 import sys.thread.Thread;
-import objects.ArrowTile.TileColorData;
+import objects.tiles.ArrowTile;
 import sys.thread.Thread;
 import sys.io.File;
 import sys.FileSystem;
