@@ -1,6 +1,6 @@
 package states;
 
-import game.Utils;
+
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -39,7 +39,7 @@ class IntroState extends FlxState {
         add(playerBox);
 
         // Tile Box sprite
-        tileBox = new FlxSprite().loadGraphic(Assets.image("ArrowTile"));
+        tileBox = new FlxSprite().loadGraphic(Assets.image("arrow_tile"));
         tileBox.setGraphicSize(playerBox.frameWidth, playerBox.frameHeight);
         tileBox.updateHitbox();
         tileBox.x = ((FlxG.width - tileBox.width) * 0.5) + _centerOffset;

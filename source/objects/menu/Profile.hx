@@ -8,7 +8,7 @@ import openfl.utils.ByteArray;
 import openfl.events.ProgressEvent;
 import openfl.display.BitmapData;
 import openfl.events.Event;
-import game.Utils;
+
 import openfl.net.URLRequest;
 import openfl.net.URLLoader;
 

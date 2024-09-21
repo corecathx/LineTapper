@@ -1,19 +1,54 @@
 package game;
 
 import sys.thread.Thread;
+import objects.ArrowTile.TileColorData;
+import sys.thread.Thread;
 import sys.io.File;
 import sys.FileSystem;
 import objects.menu.Profile.User;
 
 using StringTools;
 
-typedef RBG = {
+typedef RGB = {
 	var red:Int;
 	var green:Int;
 	var blue:Int;
 }
 
 class Utils {
+    /**
+     * Default LineTapper Tile Color Data.
+     */
+    public static var DEFAULT_TILE_COLOR_DATA(get, null):TileColorData;
+    static function get_DEFAULT_TILE_COLOR_DATA() {
+        return {
+            zero: {
+                red: 255,
+                green: 136,
+                blue: 0
+            },
+            one: {
+                red: 251,
+                green: 255,
+                blue: 0
+            },
+            two: {
+                red: 0,
+                green: 238,
+                blue: 255
+            },
+            three: {
+                red: 255,
+                green: 0,
+                blue: 255
+            },
+            fallback: {
+                red: 255,
+                green: 255,
+                blue: 255
+            }
+        };
+    }
     /**
      * Every supported Haxe file extensions (Used for Scripting).
      */
