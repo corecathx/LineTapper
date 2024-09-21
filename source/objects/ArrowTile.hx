@@ -223,9 +223,4 @@ class ArrowTile extends FlxSprite {
         if (canUpdateColors)
             updateColors();
 	}
-
-	override function destroy() {
-		outlineEffect.destroy();
-		super.destroy();
-	}
 }
