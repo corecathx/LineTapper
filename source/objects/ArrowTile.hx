@@ -1,6 +1,7 @@
 package objects;
 
-
+import flixel.math.FlxMath;
+import flixel.tweens.FlxEase;
 import sys.thread.Thread;
 import flixel.group.FlxGroup;
 import flixel.effects.FlxFlicker;
@@ -113,6 +114,8 @@ class ArrowTile extends FlxSprite {
 	public var missed:Bool = false;
 
 	public var hitsound_played:Bool = false;
+	
+	public var outlineEffect:BoxOutline;
 
 	/**
 	 * Creates a new ArrowTile object.
