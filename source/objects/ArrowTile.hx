@@ -78,13 +78,7 @@ class ArrowTile extends FlxSprite {
 		loadGraphic(Assets.image("arrow_tile"));
 		setGraphicSize(Player.BOX_SIZE, Player.BOX_SIZE);
 		updateHitbox();
-		color = switch (step % 4) {
-			case 0: FlxColor.fromRGB(tileColorData.zero.red, tileColorData.zero.green, tileColorData.zero.blue, 255);
-			case 1: FlxColor.fromRGB(tileColorData.one.red, tileColorData.one.green, tileColorData.one.blue, 255);
-			case 2: FlxColor.fromRGB(tileColorData.two.red, tileColorData.two.green, tileColorData.two.blue, 255);
-			case 3: FlxColor.fromRGB(tileColorData.three.red, tileColorData.three.green, tileColorData.three.blue, 255);
-			default: FlxColor.fromRGB(tileColorData.fallback.red, tileColorData.fallback.green, tileColorData.fallback.blue, 255);
-		}
+		updateColors();
 
 		switch (dir) {
 			case LEFT:
@@ -98,6 +92,17 @@ class ArrowTile extends FlxSprite {
 		}
 		alpha = 0;
 	}
+
+    function updateColors()
+    {
+        color = switch (step % 4) {
+			case 0: FlxColor.fromRGB(tileColorData.zero.red, tileColorData.zero.green, tileColorData.zero.blue, 255);
+			case 1: FlxColor.fromRGB(tileColorData.one.red, tileColorData.one.green, tileColorData.one.blue, 255);
+			case 2: FlxColor.fromRGB(tileColorData.two.red, tileColorData.two.green, tileColorData.two.blue, 255);
+			case 3: FlxColor.fromRGB(tileColorData.three.red, tileColorData.three.green, tileColorData.three.blue, 255);
+			default: FlxColor.fromRGB(tileColorData.fallback.red, tileColorData.fallback.green, tileColorData.fallback.blue, 255);
+		}
+    }
 
 	var _angleAdd:Float = 0;
 
@@ -123,6 +128,9 @@ class ArrowTile extends FlxSprite {
 		if (!missed && !already_hit) {
 			_angleAdd = FlxG.random.float(-90, 90);
 		}
+
+        if (canUpdateColors)
+            updateColors();
 		super.update(elapsed);
 	}
 }
