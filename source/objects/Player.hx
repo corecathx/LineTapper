@@ -115,7 +115,7 @@ class Player extends FlxSprite {
 			for (key in keyList) {
 				if (FlxG.keys.checkStatus(key, JUST_PRESSED)) {
 					pressed = true;
-					break; // Exit inner loop once a key is pressed
+					break;
 				}
 			}
 			pressArray[index] = pressed;
@@ -150,7 +150,6 @@ class Player extends FlxSprite {
 					PlayState.instance.onTileHit(nextTile);
 				}
 			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.2)) {
-				trace("MISSED!!!");
                 PlayState.instance.misses++;
 				PlayState.instance.hitStatus = "MISSED!";
 				PlayState.instance.combo = 0;
@@ -163,8 +162,6 @@ class Player extends FlxSprite {
 	public function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
 		var xPos:Float = nextTile.x;
 		var yPos:Float = nextTile.y;
-
-		trace("Offset: " + offset);
 
 		if (applyOffset) {
 			switch (nextTile.direction) {
