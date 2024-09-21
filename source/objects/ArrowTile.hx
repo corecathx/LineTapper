@@ -1,6 +1,7 @@
 package objects;
 
-import game.Utils.RBG;
+
+import game.Utils.RGB;
 import flixel.graphics.FlxGraphic;
 import game.Conductor;
 import lime.graphics.Image;
@@ -11,11 +12,11 @@ import openfl.display.BitmapData;
  * Arrow Tile colors from the map.
  */
 typedef TileColorData = {
-	var zero:RBG;
-	var one:RBG;
-	var two:RBG;
-	var three:RBG;
-	var fallback:RBG;
+	var zero:RGB;
+	var one:RGB;
+	var two:RGB;
+	var three:RGB;
+	var fallback:RGB;
 }
 
 /**
@@ -25,33 +26,7 @@ class ArrowTile extends FlxSprite {
 	/**
 	 * Value for the tile color data.
 	 */
-	public var tileColorData:TileColorData = {
-		zero: {
-			red: 255,
-			green: 136,
-			blue: 0
-		},
-		one: {
-			red: 251,
-			green: 255,
-			blue: 0
-		},
-		two: {
-			red: 0,
-			green: 238,
-			blue: 255
-		},
-		three: {
-			red: 255,
-			green: 0,
-			blue: 255
-		},
-		fallback: {
-			red: 255,
-			green: 255,
-			blue: 255
-		}
-	};
+	public var tileColorData:TileColorData = Utils.DEFAULT_TILE_COLOR_DATA;
 
 	/**
 	 * If this tile updates its color each frame.
@@ -97,11 +72,12 @@ class ArrowTile extends FlxSprite {
 		super(nX, nY);
 		step = curStep;
 		direction = dir;
-		trace(tileColorData);
 		if (tileColorData != null)
 			this.tileColorData = tileColorData;
 
-		loadGraphic(Assets.image("ArrowTile"));
+		loadGraphic(Assets.image("arrow_tile"));
+		setGraphicSize(Player.BOX_SIZE, Player.BOX_SIZE);
+		updateHitbox();
 		color = switch (step % 4) {
 			case 0: FlxColor.fromRGB(tileColorData.zero.red, tileColorData.zero.green, tileColorData.zero.blue, 255);
 			case 1: FlxColor.fromRGB(tileColorData.one.red, tileColorData.one.green, tileColorData.one.blue, 255);
@@ -135,12 +111,12 @@ class ArrowTile extends FlxSprite {
 		if (missed) {
 			canUpdateColors = false;
 			color = FlxColor.RED;
-			scale.set(scale.x - (2 * elapsed), scale.y - (2 * elapsed));
+			scale.set(scale.x*(0.9*elapsed), scale.y*(0.9*elapsed));
 			angle += _angleAdd * elapsed;
 		}
 
 		if (already_hit) {
-			scale.set(scale.x + (3 * elapsed), scale.y + (3 * elapsed));
+			scale.set(scale.x*(1.1*elapsed), scale.y*(1.1*elapsed));
 			angle += _angleAdd * elapsed;
 		}
 
