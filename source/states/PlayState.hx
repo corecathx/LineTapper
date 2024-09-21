@@ -1,5 +1,6 @@
 package states;
 
+import game.backend.Lyrics;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
@@ -13,7 +14,7 @@ import flixel.util.FlxGradient;
 import game.Conductor;
 import game.MapData.LineMap;
 import game.MapData;
-import objects.ArrowTile;
+import objects.tiles.ArrowTile;
 import objects.Player;
 import sys.io.File;
 
@@ -37,6 +38,8 @@ class PlayState extends StateBase
     public var hasEndTransition:Bool = true;
 
 	public var scoreBoard:FlxText;
+	public var lyrics:Lyrics;
+	public var lyricText:FlxText;
 	public var combo:Int = 0;
 
 	public var camFollow:FlxObject;
@@ -120,6 +123,7 @@ class PlayState extends StateBase
 	function loadSong()
 	{
 		var mapAsset:MapAsset = Assets.map(songName);
+		lyrics = mapAsset.lyrics == null ? new Lyrics() : mapAsset.lyrics;
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
             songEnded = true;
@@ -190,6 +194,11 @@ class PlayState extends StateBase
 		scoreBoard.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		add(scoreBoard);
 		scoreBoard.cameras = [hudCamera];
+
+		lyricText = new FlxText(20, 20, -1, "", 16);
+		lyricText.setFormat(Assets.font("extenro"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		add(lyricText);
+		lyricText.cameras = [hudCamera];
 	}
 
 	function loadGameplay()
@@ -223,9 +232,14 @@ class PlayState extends StateBase
 		} else {
 			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
 		}
-		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 12));
+		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 24));
 		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
 		scoreBoard.screenCenter(X);
+
+		lyricText.text = lyrics.getLyric(Conductor.instance.time);
+		lyricText.setPosition(0,FlxG.height - (scoreBoard.height + 80));
+		lyricText.screenCenter(X);
+
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, 1 - (elapsed * 12));
 
 		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
@@ -239,9 +253,7 @@ class PlayState extends StateBase
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE) {
-            FlxG.sound.music.stop();
-			FlxG.switchState(new MenuState());
-		    Conductor.instance.onBeatTick.remove(beatTick);
+			endSong();
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
@@ -254,31 +266,18 @@ class PlayState extends StateBase
 			{
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if (Conductor.instance.current_steps > tile.step - 1 && !tile.already_hit)
+					if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.already_hit)
 						onTileHit(tile);
-
-					if (tile.already_hit && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 			} else {
 				player.checkTiles(tile_group);
 
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-                    if (Conductor.instance.current_steps > tile.step - 1 && !tile.checked){
-                        tile.checked = true;
-						player.onHitPropertyChange(tile, 0, false);
+                    if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.checked){
+                        tile.tile.checked = true;
+						player.onHitPropertyChange(tile.tile, 0, false);
                     }
-					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 
 				FlxG.watch.addQuick("Player Current Step: ", player.currentStep);
@@ -288,10 +287,10 @@ class PlayState extends StateBase
 			}
 
 			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.instance.current_steps < aT.step) return;
-				if (!aT.hitsound_played) {
+				if (Conductor.instance.current_steps < aT.tile.step) return;
+				if (!aT.tile.hitsound_played) {
 					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-					aT.hitsound_played = true;
+					aT.tile.hitsound_played = true;
 				}
 			});
 		}
@@ -302,7 +301,8 @@ class PlayState extends StateBase
 	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
         scripts.executeFunc("onTileHit", [tile]);
-		tile.already_hit = true;
+        tile.onTileHit();
+		tile.tile.already_hit = true;
         if (using_autoplay)
 		    updatePlayerPosition(tile);
 		combo++;
@@ -315,8 +315,8 @@ class PlayState extends StateBase
 	}
 
     public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.direction;
-		player.setPosition(tile.x, tile.y);
+        player.direction = tile.tile.direction;
+		player.setPosition(tile.tile.x, tile.tile.y);
     }
 
 	public function beatTick() {

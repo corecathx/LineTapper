@@ -1,5 +1,6 @@
 package game;
 
+import game.backend.Lyrics;
 import game.MapData.MapAsset;
 import openfl.display3D.textures.RectangleTexture;
 import flixel.graphics.FlxGraphic;
@@ -111,16 +112,21 @@ class Assets
 
 		var soundPath:String = '$path/audio.ogg';
 		var mapPath:String = '$path/map.json';
+		var lyricsPath:String = '$path/lyrics.txt';
 
 		var mAsset:MapAsset = {
 			audio: null,
-			map: null
+			map: null,
+			lyrics: null
 		};
 
 		mAsset.audio = _sound_file(soundPath);
 
 		if (FileSystem.exists(mapPath))
 			mAsset.map = MapData.loadMap(File.getContent(mapPath));
+
+		if (FileSystem.exists(lyricsPath))
+			mAsset.lyrics = new Lyrics(File.getContent(lyricsPath));
 
 		return mAsset;
 	}

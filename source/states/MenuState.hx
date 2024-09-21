@@ -72,8 +72,6 @@ class MenuState extends StateBase {
 		var scaleXTarget:Float = (FlxG.width * 0.75) / boxBelow.width;
 		var scaleYTarget:Float = (boxBelow.height - 30) / boxBelow.height;
 
-		trace("x: " + scaleXTarget + " // y: " + scaleYTarget);
-
 		FlxTween.tween(boxBelow, {alpha: 0.3}, 1, {ease: FlxEase.expoInOut});
 		FlxTween.tween(boxBelow.scale, {x: scaleXTarget, y: scaleYTarget}, 1, {
 			ease: FlxEase.expoInOut,
@@ -82,7 +80,6 @@ class MenuState extends StateBase {
 				startMenu();
 			}
 		});
-
 		super.create();
 	}
 
@@ -132,7 +129,6 @@ class MenuState extends StateBase {
 	var confirmed:Bool = false;
 
 	override function update(elapsed:Float) {
-		super.update(elapsed);
 		if (FlxG.keys.justPressed.SPACE) {
 			FlxG.resetState();
 		}
@@ -161,6 +157,7 @@ class MenuState extends StateBase {
 		}
 
 		menuUpdate(elapsed);
+		super.update(elapsed);
 	}
 
 	var _timePassed:Float = 0;

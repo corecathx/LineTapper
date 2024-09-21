@@ -1,5 +1,7 @@
 package objects;
 
+import objects.tiles.ArrowTile;
+import objects.tiles.ArrowTileSpr;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
 import flixel.input.keyboard.FlxKey;
@@ -95,7 +97,6 @@ class Player extends FlxSprite {
 			}
 		}
 	}
-
 	// remind me to rewrite this soon please
 	public function checkTiles(tile_group:FlxTypedGroup<ArrowTile>) {
 		if (!started)
@@ -116,21 +117,21 @@ class Player extends FlxSprite {
 			for (key in keyList) {
 				if (FlxG.keys.checkStatus(key, JUST_PRESSED)) {
 					pressed = true;
-					break; // Exit inner loop once a key is pressed
+					break;
 				}
 			}
 			pressArray[index] = pressed;
 		}
 
-		var nextTile:ArrowTile = null;
+		var nextTile:ArrowTileSpr = null;
 		tile_group.forEachAlive((tile:ArrowTile) -> {
-			if (tile == null || tile.already_hit || tile.missed)
+			if (tile == null || tile.tile.already_hit || tile.tile.missed)
 				return;
 
 			if (nextTile == null)
-				nextTile = tile;
-			else if (tile.step > currentStep && tile.step < nextTile.step)
-				nextTile = tile;
+				nextTile = tile.tile;
+			else if (tile.tile.step > currentStep && tile.tile.step < nextTile.step)
+				nextTile = tile.tile;
 		});
 
 		if (nextTile != null) {
@@ -138,8 +139,8 @@ class Player extends FlxSprite {
 			nextDirection = nextTile.direction;
 
 			var tileTime:Float = nextTile.step * Conductor.instance.step_ms;
-			var hitable:Bool = tileTime > Conductor.instance.time - (Conductor.instance.safe_zone_offset * 1.5)
-				&& tileTime < Conductor.instance.time + (Conductor.instance.safe_zone_offset * 0.25);
+			var hitable:Bool = tileTime > Conductor.instance.time - (Conductor.instance.safe_zone_offset * 1.2)
+				&& tileTime < Conductor.instance.time + (Conductor.instance.safe_zone_offset * 0.4);
 
 			var timeDiff:Float = tileTime - Conductor.instance.time; // + is early, - is late.
 			// i want to die :sob:
@@ -147,28 +148,22 @@ class Player extends FlxSprite {
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
-					nextTile.already_hit = true;
 					PlayState.instance.hitStatus = "PERFECT!!";
-					PlayState.instance.onTileHit(nextTile);
-					//onHitPropertyChange(nextTile, tOffset, true);
+					PlayState.instance.onTileHit(nextTile.group);
 				}
-			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.2)) {
-				trace("MISSED!!!");
+			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.4)) {
                 PlayState.instance.misses++;
 				PlayState.instance.hitStatus = "MISSED!";
 				PlayState.instance.combo = 0;
+                nextTile.group.onTileMiss();
 				nextTile.missed = true;
-                
-				//onHitPropertyChange(nextTile, tOffset, false);
 			}
 		}
 	}
 
-	public function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
+	public function onHitPropertyChange(nextTile:ArrowTileSpr, offset:Float, applyOffset:Bool) {
 		var xPos:Float = nextTile.x;
 		var yPos:Float = nextTile.y;
-
-		trace("Offset: " + offset);
 
 		if (applyOffset) {
 			switch (nextTile.direction) {

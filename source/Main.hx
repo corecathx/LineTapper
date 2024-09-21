@@ -18,7 +18,7 @@ class Main extends Sprite
 		NativeUtil.setDPIAware();
 
 		addChild(new FlxGame(0, 0, STARTING_STATE, 120,120,true,false));
-		addChild(new objects.SystemInfo(10,10,0xFFFFFF,false));
+		//addChild(new objects.SystemInfo(10,10,0xFFFFFF,false));
 		FlxG.fixedTimestep = FlxG.autoPause = false;
 
 		NativeUtil.setWindowDarkMode(Application.current.window.title, true);
