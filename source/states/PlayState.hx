@@ -162,7 +162,7 @@ class PlayState extends StateBase
 			var posY = tileData[1] * 50;
 
 			var _theme:Theme = linemap.theme == null ? {bg:"" ,tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
-			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData);
+			var arrowTile = new ArrowTile(posX, posY, direction, curStep, this, _theme.tileColorData);
 			tile_group.add(arrowTile);
 
 			current_direction = direction;
@@ -256,13 +256,6 @@ class PlayState extends StateBase
 				{
 					if (Conductor.instance.current_steps > tile.step - 1 && !tile.already_hit)
 						onTileHit(tile);
-
-					if (tile.already_hit && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 			} else {
 				player.checkTiles(tile_group);
@@ -273,12 +266,6 @@ class PlayState extends StateBase
                         tile.checked = true;
 						player.onHitPropertyChange(tile, 0, false);
                     }
-					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 
 				FlxG.watch.addQuick("Player Current Step: ", player.currentStep);
@@ -302,6 +289,7 @@ class PlayState extends StateBase
 	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
         scripts.executeFunc("onTileHit", [tile]);
+        tile.onTileHit();
 		tile.already_hit = true;
         if (using_autoplay)
 		    updatePlayerPosition(tile);

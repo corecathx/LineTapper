@@ -146,19 +146,16 @@ class Player extends FlxSprite {
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
-					nextTile.already_hit = true;
 					PlayState.instance.hitStatus = "PERFECT!!";
 					PlayState.instance.onTileHit(nextTile);
-					//onHitPropertyChange(nextTile, tOffset, true);
 				}
 			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.2)) {
 				trace("MISSED!!!");
                 PlayState.instance.misses++;
 				PlayState.instance.hitStatus = "MISSED!";
 				PlayState.instance.combo = 0;
+                nextTile.onTileMiss();
 				nextTile.missed = true;
-                
-				//onHitPropertyChange(nextTile, tOffset, false);
 			}
 		}
 	}
