@@ -14,7 +14,7 @@ import flixel.util.FlxGradient;
 import game.Conductor;
 import game.MapData.LineMap;
 import game.MapData;
-import objects.ArrowTile;
+import objects.tiles.ArrowTile;
 import objects.Player;
 import sys.io.File;
 
@@ -166,7 +166,7 @@ class PlayState extends StateBase
 			var posY = tileData[1] * 50;
 
 			var _theme:Theme = linemap.theme == null ? {bg:"" ,tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
-			var arrowTile = new ArrowTile(posX, posY, direction, curStep, this, _theme.tileColorData);
+			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData);
 			tile_group.add(arrowTile);
 
 			current_direction = direction;
@@ -266,7 +266,7 @@ class PlayState extends StateBase
 			{
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if (Conductor.instance.current_steps > tile.step - 1 && !tile.already_hit)
+					if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.already_hit)
 						onTileHit(tile);
 				});
 			} else {
@@ -274,9 +274,9 @@ class PlayState extends StateBase
 
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-                    if (Conductor.instance.current_steps > tile.step - 1 && !tile.checked){
-                        tile.checked = true;
-						player.onHitPropertyChange(tile, 0, false);
+                    if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.checked){
+                        tile.tile.checked = true;
+						player.onHitPropertyChange(tile.tile, 0, false);
                     }
 				});
 
@@ -287,10 +287,10 @@ class PlayState extends StateBase
 			}
 
 			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.instance.current_steps < aT.step) return;
-				if (!aT.hitsound_played) {
+				if (Conductor.instance.current_steps < aT.tile.step) return;
+				if (!aT.tile.hitsound_played) {
 					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-					aT.hitsound_played = true;
+					aT.tile.hitsound_played = true;
 				}
 			});
 		}
@@ -302,7 +302,7 @@ class PlayState extends StateBase
 	{
         scripts.executeFunc("onTileHit", [tile]);
         tile.onTileHit();
-		tile.already_hit = true;
+		tile.tile.already_hit = true;
         if (using_autoplay)
 		    updatePlayerPosition(tile);
 		combo++;
@@ -315,8 +315,8 @@ class PlayState extends StateBase
 	}
 
     public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.direction;
-		player.setPosition(tile.x, tile.y);
+        player.direction = tile.tile.direction;
+		player.setPosition(tile.tile.x, tile.tile.y);
     }
 
 	public function beatTick() {
