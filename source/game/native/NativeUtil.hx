@@ -1,9 +1,9 @@
-package game.system;
+package game.native;
 
 /**
  * Cross platform support.
  */
-class Game {
+class NativeUtil {
     /**
      * Returns current used memory in bytes for current platform.
      * If the platform is unsupported, it will return Garbage Collector memory.

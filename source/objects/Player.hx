@@ -16,6 +16,7 @@ enum abstract PlayerDirection(Int) {
 }
 
 class Player extends FlxSprite {
+	public static var BOX_SIZE:Int = 50;
 	public var direction:PlayerDirection = DOWN;
 	public var nextDirection:PlayerDirection = DOWN;
 
@@ -35,12 +36,11 @@ class Player extends FlxSprite {
 
 	public function new(nX:Float, nY:Float) {
 		super(nX, nY);
-		makeGraphic(50, 50, 0xFFFFFFFF);
+		makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
 	}
 
 	override function update(elapsed:Float) {
 		updateProperties();
-		// updateControls();
         if (!PlayState.instance.songEnded)
 		    updateMovement(elapsed);
 
@@ -75,7 +75,7 @@ class Player extends FlxSprite {
 		_curTime += elapsed;
 
 		if (_curTime > trail_delay) {
-			var n:FlxSprite = new FlxSprite(x, y).makeGraphic(50, 50, 0xFFFFFFFF);
+			var n:FlxSprite = new FlxSprite(x, y).makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
 			n.alpha = 0.8;
 			n.active = false;
 			n.blend = ADD;
@@ -94,28 +94,6 @@ class Player extends FlxSprite {
 				trails.remove(i);
 			}
 		}
-	}
-
-	private function updateControls() {
-		/*if (!started) return;
-			var keys:Array<PlayerControls> = [
-				{keys: [FlxKey.A, FlxKey.LEFT], dir: PlayerDirection.LEFT},
-				{keys: [FlxKey.S, FlxKey.DOWN], dir: PlayerDirection.DOWN},
-				{keys: [FlxKey.W, FlxKey.UP], dir: PlayerDirection.UP},
-				{keys: [FlxKey.D, FlxKey.RIGHT], dir: PlayerDirection.RIGHT}
-			];
-
-			for (c in keys) {
-				var pressed:Bool = false;
-				for (i in c.keys) if (!pressed) pressed = FlxG.keys.checkStatus(i, JUST_PRESSED);
-				if (pressed) {
-					direction = c.dir;
-					states.PlayState.instance.combo++;
-					states.PlayState.instance.scoreBoard.scale.x+=0.3;
-
-					FlxG.camera.zoom += 0.05;
-				}
-		}*/
 	}
 
 	// remind me to rewrite this soon please
@@ -165,7 +143,7 @@ class Player extends FlxSprite {
 
 			var timeDiff:Float = tileTime - Conductor.instance.time; // + is early, - is late.
 			// i want to die :sob:
-			var tOffset:Float = timeDiff * (50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
+			var tOffset:Float = timeDiff * (BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
 
 			if (hitable) {
 				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
@@ -217,7 +195,7 @@ class Player extends FlxSprite {
 
 		elapsed *= 1000;
 
-		var moveVel:Float = ((50 / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
+		var moveVel:Float = ((BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
 
 		switch (direction) {
 			case PlayerDirection.LEFT:
@@ -234,9 +212,9 @@ class Player extends FlxSprite {
 		y += addY;
 
 		if (direction == PlayerDirection.LEFT || direction == PlayerDirection.RIGHT) {
-			y = Math.round(y / 50) * 50;
+			y = Math.round(y / BOX_SIZE) * BOX_SIZE;
 		} else if (direction == PlayerDirection.UP || direction == PlayerDirection.DOWN) {
-			x = Math.round(x / 50) * 50;
+			x = Math.round(x / BOX_SIZE) * BOX_SIZE;
 		}
 	}
 }

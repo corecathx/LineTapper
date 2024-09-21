@@ -161,7 +161,8 @@ class PlayState extends StateBase
 			var posX = tileData[0] * 50;
 			var posY = tileData[1] * 50;
 
-			var arrowTile = new ArrowTile(posX, posY, direction, curStep, linemap.theme.tileColorData);
+			var _theme:Theme = linemap.theme == null ? {bg:"" ,tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
+			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData);
 			tile_group.add(arrowTile);
 
 			current_direction = direction;
