@@ -27,8 +27,14 @@ class Conductor {
     /** Single step in miliseconds **/
 	public var step_ms:Float = 125;
 
-    /** Hit window frame size. **/
-	public var safe_frames:Float = 10;
+    /** Hit window frame size.
+     * 
+     * EXTRA:
+     * I pressed the correct notes, I was literally sure.
+     * I was definetly overlaping an acceptable part of the arrow, and it counted 2/3 of my hits as misses.
+     * I increased it because of this. Don't change it back! >:(
+    **/
+	public var safe_frames:Float = 40;
 
     /** Hitable area for tiles. **/
     public var safe_zone_offset:Float = Math.floor((20 / 60) * 1000);
@@ -68,7 +74,7 @@ class Conductor {
         beat_ms = ((60 / bpm) * 1000);
         step_ms = beat_ms / 4;
 
-        safe_frames = 10;
+        safe_frames = 20;
         safe_zone_offset = Math.floor((safe_frames / 60) * 1000);
     }
 

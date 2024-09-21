@@ -1,6 +1,6 @@
 package game;
 
-import objects.tiles.ArrowTile;
+import objects.ArrowTile.TileColorData;
 import haxe.Json;
 import openfl.media.Sound;
 import game.backend.Lyrics;

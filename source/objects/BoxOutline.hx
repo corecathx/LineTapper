@@ -1,15 +1,14 @@
-package game.backend.utils;
-
-import openfl.utils.ByteArray;
+package objects;
 import openfl.geom.Rectangle;
-import flixel.math.FlxRect;
 import openfl.display.BitmapData;
+import openfl.utils.ByteArray;
+import flixel.FlxSprite;
+import flixel.math.FlxRect;
 
-class Shape extends FlxSprite
-{
-    public var hollowPercent(default, set):Float = 0;
+class BoxOutline extends FlxSprite {
+    public var outline(default, set):Float = 0;
     var _ogPixels:BitmapData;
-    
+
     override public function loadGraphic(Graphic:Dynamic, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, Key:String = ""):FlxSprite {
         super.loadGraphic(Graphic, Animated, Width, Height, Unique, Key);
         _ogPixels = this.pixels.clone();
@@ -20,8 +19,9 @@ class Shape extends FlxSprite
         _ogPixels = this.pixels.clone();
         return this;
     }
+    
 
-    function set_hollowPercent(val:Float):Float {
+    function set_outline(val:Float):Float {
         if (val < 0) val = 0;
         if (val > 1) val = 1;
 
@@ -47,6 +47,6 @@ class Shape extends FlxSprite
         var byteArray:ByteArray = bitmapData.getPixels(new Rectangle(0, 0, bitmapData.width, bitmapData.height));
         pixels.setPixels(new Rectangle(0, 0, bitmapData.width, bitmapData.height), byteArray);
     
-        return hollowPercent = val;
+        return outline = val;
     }
 }
