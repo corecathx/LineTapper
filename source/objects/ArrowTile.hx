@@ -1,6 +1,8 @@
 package objects;
 
-
+import flixel.math.FlxMath;
+import flixel.tweens.FlxEase;
+import objects.BoxOutline;
 import game.Utils.RGB;
 import flixel.graphics.FlxGraphic;
 import game.Conductor;
@@ -59,6 +61,8 @@ class ArrowTile extends FlxSprite {
 	public var missed:Bool = false;
 
 	public var hitsound_played:Bool = false;
+	
+	public var outlineEffect:BoxOutline;
 
 	/**
 	 * Creates a new ArrowTile object.
@@ -97,11 +101,39 @@ class ArrowTile extends FlxSprite {
 				angle = 0;
 		}
 		alpha = 0;
+
+		outlineEffect = cast new BoxOutline(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
+        outlineEffect.outline = 0.95;
+		outlineEffect.alpha = 0;
+		var _graphicSize:Float = Player.BOX_SIZE + (200);
+		outlineEffect.setGraphicSize(_graphicSize,_graphicSize);
+		outlineEffect.updateHitbox();
+	}
+
+	override function draw() {
+		super.draw();
+		outlineEffect.x = x - (outlineEffect.width-width)/2;
+		outlineEffect.y = y - (outlineEffect.height-height)/2;
+		outlineEffect.draw();
 	}
 
 	var _angleAdd:Float = 0;
-
 	override function update(elapsed:Float) {
+		if (Conductor.instance.current_steps + 6 > step && Conductor.instance.current_steps < step) {
+			outlineEffect.alpha += 5 * elapsed;
+		
+			var timeDiff:Float = Math.abs((Conductor.instance.time - (step * Conductor.instance.step_ms)) / (Conductor.instance.step_ms*6));
+			
+			var _animTime:Float = FlxEase.backOut(Math.abs(timeDiff));
+			
+			//trace(((Conductor.instance.time - (step * Conductor.instance.step_ms))-(Conductor.instance.step_ms*4)) + " // " + timeDiff);
+
+			var _graphicSize:Float = Player.BOX_SIZE + (100 * _animTime);
+			outlineEffect.scale.set(_graphicSize / outlineEffect.frameWidth, _graphicSize / outlineEffect.frameHeight);
+		} else {
+			outlineEffect.alpha -= 10 * elapsed;
+		}
+		
 		if (Conductor.instance.current_steps + 10 > step && Conductor.instance.current_steps < step && alpha < 1) {
 			alpha += 2 * elapsed;
 		} else {
@@ -124,5 +156,10 @@ class ArrowTile extends FlxSprite {
 			_angleAdd = FlxG.random.float(-90, 90);
 		}
 		super.update(elapsed);
+	}
+
+	override function destroy() {
+		outlineEffect.destroy();
+		super.destroy();
 	}
 }
