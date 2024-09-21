@@ -3,11 +3,12 @@ package game;
 import objects.ArrowTile.TileColorData;
 import haxe.Json;
 import openfl.media.Sound;
-
+import game.backend.Lyrics;
 typedef MapAsset =
 {
 	var audio:Sound;
 	var map:LineMap;
+    var lyrics:Lyrics;
 }
 typedef TileData = {
     var step:Int;

@@ -1,5 +1,6 @@
 package states;
 
+import game.backend.Lyrics;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
@@ -37,6 +38,8 @@ class PlayState extends StateBase
     public var hasEndTransition:Bool = true;
 
 	public var scoreBoard:FlxText;
+	public var lyrics:Lyrics;
+	public var lyricText:FlxText;
 	public var combo:Int = 0;
 
 	public var camFollow:FlxObject;
@@ -120,6 +123,7 @@ class PlayState extends StateBase
 	function loadSong()
 	{
 		var mapAsset:MapAsset = Assets.map(songName);
+		lyrics = mapAsset.lyrics == null ? new Lyrics() : mapAsset.lyrics;
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
             songEnded = true;
@@ -190,6 +194,11 @@ class PlayState extends StateBase
 		scoreBoard.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		add(scoreBoard);
 		scoreBoard.cameras = [hudCamera];
+
+		lyricText = new FlxText(20, 20, -1, "", 16);
+		lyricText.setFormat(Assets.font("extenro"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		add(lyricText);
+		lyricText.cameras = [hudCamera];
 	}
 
 	function loadGameplay()
@@ -223,9 +232,14 @@ class PlayState extends StateBase
 		} else {
 			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
 		}
-		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 12));
+		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 24));
 		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
 		scoreBoard.screenCenter(X);
+
+		lyricText.text = lyrics.getLyric(Conductor.instance.time);
+		lyricText.setPosition(0,FlxG.height - (scoreBoard.height + 80));
+		lyricText.screenCenter(X);
+
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, 1 - (elapsed * 12));
 
 		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
@@ -239,9 +253,7 @@ class PlayState extends StateBase
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE) {
-            FlxG.sound.music.stop();
-			FlxG.switchState(new MenuState());
-		    Conductor.instance.onBeatTick.remove(beatTick);
+			endSong();
 		}
 
 		if (FlxG.keys.justPressed.TAB) {
