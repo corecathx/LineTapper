@@ -25,12 +25,15 @@ class Lyrics {
         var parts = time.split(":");
         if (parts.length == 2) {
             var minutes = Std.parseInt(parts[0]);
-            var seconds = Std.parseInt(parts[1].split(".")[0]);
-            var milliseconds = Std.parseInt(parts[1].split(".")[1]);
+            var secondsParts = parts[1].split(".");
+            var seconds = Std.parseInt(secondsParts[0]);
+            var milliseconds = Std.parseInt(secondsParts[1]);
+    
             return (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
         }
         return 0;
     }
+    
 
     public function getLyric(time:Float):String {
         var latest:String = "";
