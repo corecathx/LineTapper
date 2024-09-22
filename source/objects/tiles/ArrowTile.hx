@@ -1,7 +1,7 @@
 package objects.tiles;
 
 import flixel.group.FlxGroup;
-import flixel.effects.FlxFlicker;
+
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;

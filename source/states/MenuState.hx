@@ -5,7 +5,7 @@ import objects.Player;
 import flixel.math.FlxMath;
 import haxe.Constraints.Function;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.effects.FlxFlicker;
+
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxGradient;
 import flixel.tweens.FlxEase;

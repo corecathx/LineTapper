@@ -2,7 +2,7 @@ package states;
 
 import flixel.ui.FlxBar;
 import game.backend.Lyrics;
-import flixel.effects.FlxFlicker;
+
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import game.backend.script.ScriptGroup;
@@ -35,10 +35,10 @@ class PlayState extends StateBase
     public var songEnded:Bool = false;
     public var misses:Int = 0;
     public var hits:Int = 0;
-    public var ratings:Map<String, Rating>;
+    public var ratings:Map<TileRating, Rating>;
 
 	public var linemap:LineMap;
-	public var speedRate:Float = 0.8;
+	public var speedRate:Float = 1;
     public var hasEndTransition:Bool = true;
 
 	public var scoreBoard:FlxText;
@@ -89,7 +89,7 @@ class PlayState extends StateBase
 
         ratings = new Map<String, Rating>();
         ratings = [
-            'Perfect' => {count: 0, arrowTiles: []},
+            PERFECT => {count: 0, arrowTiles: []},
             'Cool' => {count: 0, arrowTiles: []},
             'Meh' => {count: 0, arrowTiles: []}
         ];
@@ -265,7 +265,7 @@ class PlayState extends StateBase
 		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
-	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
+	public function onTileHit(tile:ArrowTile, ?ratingName:TileRating = PERFECT)
 	{
 		if (tile == null) return;
 		tile.onTileHit(ratingName);
@@ -371,11 +371,17 @@ class PlayState extends StateBase
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
 
-			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.instance.current_steps < aT.step) return;
-				if (!aT.hitsound_played) {
+			tile_group.forEachAlive((tile:ArrowTile)->{
+				if ((tile.already_hit || tile.missed) 
+					&& Conductor.instance.current_steps > tile.step + 8) {
+					tile.kill();
+					tile_group.remove(tile);
+					tile.destroy();
+				}
+				if (Conductor.instance.current_steps < tile.step) return;
+				if (!tile.hitsound_played) {
 					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-					aT.hitsound_played = true;
+					tile.hitsound_played = true;
 				}
 			});
 		}

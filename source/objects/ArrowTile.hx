@@ -1,5 +1,8 @@
 package objects;
 
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
+import states.PlayState;
 import flixel.math.FlxMath;
 import flixel.tweens.FlxEase;
 import objects.TileEffect;
@@ -12,7 +15,8 @@ import openfl.display.BitmapData;
 
 enum abstract TileRating(String) from String to String {
 	var PERFECT = "perfect";
-	var GOOD = "good";
+	var COOL = "good";
+	var MEH = "meh";
 	var MISS = "miss";
 }
 
@@ -122,8 +126,9 @@ class ArrowTile extends FlxSprite {
 		outlineEffect.updateHitbox();
 
 		ratingText = new FlxText(0,0,-1,"MISS",20);
-		ratingText.setFormat(Assets.font("extenro"), 30, FlxColor.RED, CENTER, OUTLINE, FlxColor.BLACK);
-		ratingText.borderSize = 2;
+		ratingText.setFormat(Assets.font("extenro"), 14, FlxColor.RED, CENTER, OUTLINE, FlxColor.BLACK);
+		ratingText.borderSize = 4;
+		ratingText.alpha = 0;
 	}
 
 	override function draw() {
@@ -132,7 +137,7 @@ class ArrowTile extends FlxSprite {
 		outlineEffect.y = y - (outlineEffect.height-height)/2;
 		outlineEffect.draw();
 
-		if (already_hit || missed) {
+		if ((already_hit || missed) && ratingText.visible) {
 			ratingText.x = x - (ratingText.width-width)/2;
 			ratingText.y = y - (ratingText.height-height)/2;
 			ratingText.draw();
@@ -142,16 +147,12 @@ class ArrowTile extends FlxSprite {
 	var _angleAdd:Float = 0;
 	override function update(elapsed:Float) {
 		if (Conductor.instance.current_steps + 6 > step && Conductor.instance.current_steps < step) {
-			outlineEffect.alpha += 5 * elapsed;
-		
-			var timeDiff:Float = Math.abs((Conductor.instance.time - (step * Conductor.instance.step_ms)) / (Conductor.instance.step_ms*6));
-			
+			var timeDiff:Float = Math.abs((Conductor.instance.time - (step * Conductor.instance.step_ms)) / (Conductor.instance.step_ms*6));	
 			var _animTime:Float = FlxEase.backOut(Math.abs(timeDiff));
-			
-			//trace(((Conductor.instance.time - (step * Conductor.instance.step_ms))-(Conductor.instance.step_ms*4)) + " // " + timeDiff);
-
 			var _graphicSize:Float = Player.BOX_SIZE + (100 * _animTime);
+			
 			outlineEffect.scale.set(_graphicSize / outlineEffect.frameWidth, _graphicSize / outlineEffect.frameHeight);
+			outlineEffect.alpha += 5 * elapsed;
 		} else {
 			outlineEffect.alpha -= 10 * elapsed;
 		}
@@ -176,19 +177,29 @@ class ArrowTile extends FlxSprite {
 
 		if (!missed && !already_hit) {
 			_angleAdd = FlxG.random.float(-90, 90);
+		} else {
+			ratingText.alpha += 5 * elapsed;
 		}
 		super.update(elapsed);
 	}
 
 	public function onTileHit(?rating:TileRating = MISS):Void {
 		// TODO: Implement stuff.
-		this.rating = rating;
-		ratingText.text = cast rating;
-		ratingText.color = switch (rating) {
-			case PERFECT: 0xFF00FFFF;
-			case GOOD: 0xFF00FF00;
-			case MISS: 0xFFFF0000;
-			default: 0xFFFFFFFF;
+		if (ratingText != null) {
+			this.rating = rating;
+			ratingText.text = (cast rating).toUpperCase();
+			ratingText.color = switch (rating) {
+				case PERFECT: 0xFF00FFFF;
+				case COOL: 0xFF00FF00;
+				case MEH: 0xFFFFFF00;
+				case MISS: 0xFFFF0000;
+				default: 0xFFFFFFFF;
+			}
+			
+			var time:Float = Conductor.instance.beat_ms/1000;
+			FlxTimer.wait(time,()->{
+				FlxFlicker.flicker(ratingText, time, 0.05, false);
+			});
 		}
 	}
 
