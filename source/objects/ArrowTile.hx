@@ -2,13 +2,19 @@ package objects;
 
 import flixel.math.FlxMath;
 import flixel.tweens.FlxEase;
-import objects.BoxOutline;
+import objects.TileEffect;
 import game.Utils.RGB;
 import flixel.graphics.FlxGraphic;
 import game.Conductor;
 import lime.graphics.Image;
 import objects.Player.PlayerDirection;
 import openfl.display.BitmapData;
+
+enum abstract TileRating(String) from String to String {
+	var PERFECT = "perfect";
+	var GOOD = "good";
+	var MISS = "miss";
+}
 
 /**
  * Arrow Tile colors from the map.
@@ -62,7 +68,7 @@ class ArrowTile extends FlxSprite {
 
 	public var hitsound_played:Bool = false;
 	
-	public var outlineEffect:BoxOutline;
+	public var outlineEffect:TileEffect;
 
 	/**
 	 * Creates a new ArrowTile object.
@@ -102,7 +108,7 @@ class ArrowTile extends FlxSprite {
 		}
 		alpha = 0;
 
-		outlineEffect = cast new BoxOutline(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
+		outlineEffect = cast new TileEffect(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
         outlineEffect.outline = 0.95;
 		outlineEffect.alpha = 0;
 		var _graphicSize:Float = Player.BOX_SIZE + (200);
@@ -156,6 +162,14 @@ class ArrowTile extends FlxSprite {
 			_angleAdd = FlxG.random.float(-90, 90);
 		}
 		super.update(elapsed);
+	}
+
+	public function onTileHit(?rating:TileRating = MISS):Void {
+		// TODO: Implement stuff.
+	}
+
+	public function onTileMiss():Void {
+		// TODO: Implement stuff.
 	}
 
 	override function destroy() {

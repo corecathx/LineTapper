@@ -5,7 +5,7 @@ import openfl.utils.ByteArray;
 import flixel.FlxSprite;
 import flixel.math.FlxRect;
 
-class BoxOutline extends FlxSprite {
+class TileEffect extends FlxSprite {
     public var outline(default, set):Float = 0;
     var _ogPixels:BitmapData;
 
