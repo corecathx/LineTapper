@@ -197,11 +197,8 @@ class ArrowTile extends FlxSprite {
 	}
 
 	override function destroy() {
-		inline function __destroy(obj) {
-			if (obj != null) obj.destroy();
-		}
-		__destroy(outlineEffect);
-		__destroy(ratingText);
+		if (outlineEffect != null) outlineEffect.destroy();
+		if (ratingText != null) ratingText.destroy();
 		super.destroy();
 	}
 }
