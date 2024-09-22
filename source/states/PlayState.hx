@@ -14,7 +14,7 @@ import flixel.util.FlxGradient;
 import game.Conductor;
 import game.MapData.LineMap;
 import game.MapData;
-import objects.ArrowTile;
+import objects.tiles.ArrowTile;
 import objects.Player;
 import sys.io.File;
 
@@ -266,31 +266,18 @@ class PlayState extends StateBase
 			{
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if (Conductor.instance.current_steps > tile.step - 1 && !tile.already_hit)
+					if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.already_hit)
 						onTileHit(tile);
-
-					if (tile.already_hit && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 			} else {
 				player.checkTiles(tile_group);
 
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-                    if (Conductor.instance.current_steps > tile.step - 1 && !tile.checked){
-                        tile.checked = true;
-						player.onHitPropertyChange(tile, 0, false);
+                    if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.checked){
+                        tile.tile.checked = true;
+						player.onHitPropertyChange(tile.tile, 0, false);
                     }
-					if ((tile.missed||tile.already_hit) && tile.step + 8 < Conductor.instance.current_steps)
-					{
-						tile.kill();
-						tile.destroy();
-						tile_group.remove(tile, true);
-					}
 				});
 
 				FlxG.watch.addQuick("Player Current Step: ", player.currentStep);
@@ -298,14 +285,6 @@ class PlayState extends StateBase
 				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
-
-			tile_group.forEachAlive((aT:ArrowTile)->{
-				if (Conductor.instance.current_steps < aT.step) return;
-				if (!aT.hitsound_played) {
-					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-					aT.hitsound_played = true;
-				}
-			});
 		}
 		super.update(elapsed);
 		scripts.executeFunc("postUpdate", [elapsed]);
@@ -313,22 +292,26 @@ class PlayState extends StateBase
 
 	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
-        scripts.executeFunc("onTileHit", [tile]);
-		tile.already_hit = true;
-        if (using_autoplay)
-		    updatePlayerPosition(tile);
-		combo++;
-		scoreBoard.scale.x += 0.3;
-		FlxG.camera.zoom += 0.05;
-        var rating = ratings.get(ratingName);
-        rating.count++;
-        rating.arrowTiles.push(tile);
-        scripts.executeFunc("postTileHit", [tile]);
+        if (tile.tile != null && tile.squareTileEffect != null){
+            scripts.executeFunc("onTileHit", [tile]);
+            FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+            tile.onTileHit();
+		    tile.tile.already_hit = true;
+            if (using_autoplay)
+		        updatePlayerPosition(tile);
+		    combo++;
+		    scoreBoard.scale.x += 0.3;
+		    FlxG.camera.zoom += 0.05;
+            var rating = ratings.get(ratingName);
+            rating.count++;
+            rating.arrowTiles.push(tile);
+            scripts.executeFunc("postTileHit", [tile]);
+        }
 	}
 
     public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.direction;
-		player.setPosition(tile.x, tile.y);
+        player.direction = tile.tile.direction;
+		player.setPosition(tile.tile.x, tile.tile.y);
     }
 
 	public function beatTick() {
