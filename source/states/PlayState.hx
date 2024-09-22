@@ -131,6 +131,7 @@ class PlayState extends StateBase
 
 	function loadSong()
 	{
+		Conductor.instance.time = 0; 
 		var mapAsset:MapAsset = Assets.map(songName);
 		lyrics = mapAsset.lyrics == null ? new Lyrics() : mapAsset.lyrics;
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
@@ -267,10 +268,10 @@ class PlayState extends StateBase
 	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
 	{
 		if (tile == null) return;
-
+		tile.onTileHit(ratingName);
+		
 		scripts.executeFunc("onTileHit", [tile]);
-		FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-		tile.onTileHit();
+		//FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
 		tile.already_hit = true;
 		if (using_autoplay)
 			updatePlayerPosition(tile);
@@ -369,6 +370,14 @@ class PlayState extends StateBase
 				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
+
+			tile_group.forEachAlive((aT:ArrowTile)->{
+				if (Conductor.instance.current_steps < aT.step) return;
+				if (!aT.hitsound_played) {
+					FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+					aT.hitsound_played = true;
+				}
+			});
 		}
 	}
 

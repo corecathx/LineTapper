@@ -66,9 +66,15 @@ class ArrowTile extends FlxSprite {
 	 */
 	public var missed:Bool = false;
 
+	/**
+	 * Rating of this tile after gets hit.
+	 */
+	public var rating:TileRating = MISS;
+
 	public var hitsound_played:Bool = false;
 	
 	public var outlineEffect:TileEffect;
+	public var ratingText:FlxText;
 
 	/**
 	 * Creates a new ArrowTile object.
@@ -114,6 +120,10 @@ class ArrowTile extends FlxSprite {
 		var _graphicSize:Float = Player.BOX_SIZE + (200);
 		outlineEffect.setGraphicSize(_graphicSize,_graphicSize);
 		outlineEffect.updateHitbox();
+
+		ratingText = new FlxText(0,0,-1,"MISS",20);
+		ratingText.setFormat(Assets.font("extenro"), 30, FlxColor.RED, CENTER, OUTLINE, FlxColor.BLACK);
+		ratingText.borderSize = 2;
 	}
 
 	override function draw() {
@@ -121,6 +131,12 @@ class ArrowTile extends FlxSprite {
 		outlineEffect.x = x - (outlineEffect.width-width)/2;
 		outlineEffect.y = y - (outlineEffect.height-height)/2;
 		outlineEffect.draw();
+
+		if (already_hit || missed) {
+			ratingText.x = x - (ratingText.width-width)/2;
+			ratingText.y = y - (ratingText.height-height)/2;
+			ratingText.draw();
+		}
 	}
 
 	var _angleAdd:Float = 0;
@@ -149,12 +165,12 @@ class ArrowTile extends FlxSprite {
 		if (missed) {
 			canUpdateColors = false;
 			color = FlxColor.RED;
-			scale.set(scale.x*(0.9*elapsed), scale.y*(0.9*elapsed));
+			scale.x = scale.y *= 0.9 * (elapsed*5);
 			angle += _angleAdd * elapsed;
 		}
 
 		if (already_hit) {
-			scale.set(scale.x*(1.1*elapsed), scale.y*(1.1*elapsed));
+			scale.x = scale.y *= 1.1 * (elapsed*5);
 			angle += _angleAdd * elapsed;
 		}
 
@@ -166,6 +182,14 @@ class ArrowTile extends FlxSprite {
 
 	public function onTileHit(?rating:TileRating = MISS):Void {
 		// TODO: Implement stuff.
+		this.rating = rating;
+		ratingText.text = cast rating;
+		ratingText.color = switch (rating) {
+			case PERFECT: 0xFF00FFFF;
+			case GOOD: 0xFF00FF00;
+			case MISS: 0xFFFF0000;
+			default: 0xFFFFFFFF;
+		}
 	}
 
 	public function onTileMiss():Void {
@@ -173,7 +197,11 @@ class ArrowTile extends FlxSprite {
 	}
 
 	override function destroy() {
-		outlineEffect.destroy();
+		inline function __destroy(obj) {
+			if (obj != null) obj.destroy();
+		}
+		__destroy(outlineEffect);
+		__destroy(ratingText);
 		super.destroy();
 	}
 }
