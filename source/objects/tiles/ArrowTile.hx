@@ -38,12 +38,10 @@ class ArrowTile extends FlxGroup {
         // Tween based on properties instead of a set value. Just a way to make sure custom things like modcharts won't break.
         FlxTween.tween(tile, {"scale.x": tile.scale.x + tile.scale.x/2.5, "scale.y": tile.scale.y + tile.scale.y/2.5, angle: tile.angle + 70, alpha: 0}, 0.5, {ease: FlxEase.quadOut});
         FlxTween.tween(squareTileEffect, {"scale.x": tile.scale.x + 1.7, "scale.y": tile.scale.y + 1.7, alpha: 0}, 0.5, {ease: FlxEase.quadOut});
-        new FlxTimer().start(0.25, function(t){
-            FlxFlicker.flicker(squareTileEffect, 0.25, 0.02);
-        });
         new FlxTimer().start(0.5, function(t){
             remove(squareTileEffect);
-            squareTileEffect.kill();
+            if (squareTileEffect != null)
+                squareTileEffect.kill();
             squareTileEffect = null;
         });
         var rTxt = new FlxText(tile.x, tile.y + tile.verticalTextOffset, 0, rating);
@@ -54,7 +52,8 @@ class ArrowTile extends FlxGroup {
         new FlxTimer().start(0.25, function(t){
             FlxFlicker.flicker(rTxt, 0.25, 0.02, false, true, function(e){
                 remove(rTxt);
-                rTxt.kill();
+                if (rTxt != null)
+                    rTxt.kill();
                 rTxt = null;
             });
         });
@@ -65,7 +64,8 @@ class ArrowTile extends FlxGroup {
         FlxTween.tween(squareTileEffect, {"scale.x": tile.scale.x - tile.scale.x/2.5, "scale.y": tile.scale.y - tile.scale.y/2.5, angle: -10, alpha: 0}, 0.5, {ease: FlxEase.quadIn});
         new FlxTimer().start(0.5, function(t){
             remove(squareTileEffect);
-            squareTileEffect.kill();
+            if (squareTileEffect != null)
+                squareTileEffect.kill();
             squareTileEffect = null;
         });
         var mTxt = new FlxText(tile.x, tile.y + tile.verticalTextOffset, 0, 'MISS');
@@ -76,7 +76,8 @@ class ArrowTile extends FlxGroup {
         new FlxTimer().start(0.25, function(t){
             FlxFlicker.flicker(mTxt, 0.25, 0.02, false, true, function(e){
                 remove(mTxt);
-                mTxt.kill();
+                if (mTxt != null)
+                    mTxt.kill();
                 mTxt = null;
             });
         });

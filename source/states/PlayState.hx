@@ -1,5 +1,6 @@
 package states;
 
+import objects.Background;
 import game.backend.Lyrics;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
@@ -28,6 +29,7 @@ class PlayState extends StateBase
 	public static var instance:PlayState;
 
 	public var songName:String = "Tutorial";
+    public var songStarted:Bool = false;
     public var songEnded:Bool = false;
     public var misses:Int = 0;
     public var hits:Int = 0;
@@ -50,7 +52,8 @@ class PlayState extends StateBase
 	public var scripts:ScriptGroup;
 
 	public var bg_gradient:FlxSprite;
-	public var bg:FlxBackdrop;
+	public var backdrop:FlxBackdrop;
+    public var gameBG:Background;
 
 	public var gameCamera:FlxCamera;
 	public var hudCamera:FlxCamera;
@@ -71,6 +74,7 @@ class PlayState extends StateBase
 	{
 		instance = this;
 
+        initSong();
 		scripts = new ScriptGroup('${Assets._MAP_PATH}/$songName/scripts/');
 		scripts.executeFunc("create");
 
@@ -101,10 +105,12 @@ class PlayState extends StateBase
 
     function endSong()
     {
+        if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
+            gameBG.stopVideo();
         if (hasEndTransition){
             FlxTween.tween(bg_gradient, {alpha: 0}, 1);
             FlxTween.tween(scoreBoard, {alpha: 0}, 1);
-            FlxTween.tween(bg, {alpha: 0}, 1);
+            FlxTween.tween(backdrop, {alpha: 0}, 1);
             new FlxTimer().start(1, function(tmr:FlxTimer)
             {
                 FlxFlicker.flicker(player, 0.5, 0.02, true);
@@ -120,9 +126,8 @@ class PlayState extends StateBase
         }
     }
 
-	function loadSong()
-	{
-		var mapAsset:MapAsset = Assets.map(songName);
+    function initSong() {
+        var mapAsset:MapAsset = Assets.map(songName);
 		lyrics = mapAsset.lyrics == null ? new Lyrics() : mapAsset.lyrics;
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
@@ -134,7 +139,10 @@ class PlayState extends StateBase
 		FlxG.sound.music.pause();
 
 		linemap = mapAsset.map;
+    }
 
+	function loadSong()
+	{
 		var current_direction:PlayerDirection = PlayerDirection.DOWN;
 		var tileData:Array<Int> = [0, 0]; // Current Tile, rounded from 50px, 0,0 is the first tile.
 		var curStep:Int = 0;
@@ -165,7 +173,7 @@ class PlayState extends StateBase
 			var posX = tileData[0] * 50;
 			var posY = tileData[1] * 50;
 
-			var _theme:Theme = linemap.theme == null ? {bg:"" ,tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
+			var _theme:Theme = linemap.theme == null ? {bgData: {}, tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
 			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData);
 			tile_group.add(arrowTile);
 
@@ -209,9 +217,20 @@ class PlayState extends StateBase
 		bg_gradient.alpha = 0.1;
 		add(bg_gradient);
 
-		bg = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
-		bg.alpha = 0;
-		add(bg);
+		backdrop = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
+		backdrop.alpha = 0;
+		add(backdrop);
+
+        if (linemap.theme.bgData != null){
+            if (linemap.theme.bgData.bg != ''){
+                bg_gradient.visible = false;
+                backdrop.visible = false;
+            
+                var bgType = Background.typeFromString(linemap.theme.bgData.bgType);
+                gameBG = new Background(bgType, 'assets/data/maps/$songName/mapAssets/${linemap.theme.bgData.bg}${bgType == IMAGE ? '.png' : bgType == VIDEO ? '.mp4' : '.png'}', linemap.theme.bgData.scaleX, linemap.theme.bgData.scaleY, linemap.theme.bgData.alpha);
+                add(gameBG);
+            }
+        }
 
 		tile_group = new FlxTypedGroup<ArrowTile>();
 		add(tile_group);
@@ -247,12 +266,19 @@ class PlayState extends StateBase
 
 		if (FlxG.keys.justPressed.SPACE)
 		{
+            songStarted = true;
+            if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO) // has a custom gameBG
+                gameBG.playVideo();
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE) {
+            FlxG.sound.music.fadeOut(1,0, function(t){
+                FlxG.sound.music.stop();
+                tile_group.clear();
+            });
 			endSong();
 		}
 

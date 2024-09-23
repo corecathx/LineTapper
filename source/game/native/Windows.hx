@@ -1,5 +1,7 @@
 package game.native;
 
+import cpp.Int32;
+
 /**
  * Native helper class for Windows.
  * - CoreCat :]
@@ -66,6 +68,22 @@ class Windows
         }
     ')
     public static function setWindowDarkMode(title:String, enable:Bool) {}
+
+    /**
+     * Allows the user to set the window title bar color. (WINDOWS 11 ONLY)
+     * @param title Window title, do something like `lime.app.Application.current.window.title`.
+     * @param targetColor This is a hex code that is in 0x00BBGGRR. Not RGB, but BGR.
+     */
+    @:functionCode('
+        COLORREF COLOR = targetColor;
+        
+        HWND window = FindWindowA(NULL, title.c_str());
+        // Look for child windows if top level aint found
+        if (window == NULL) window = FindWindowExA(GetActiveWindow(), NULL, NULL, title.c_str());
+        
+        BOOL SET_CAPTION_COLOR = SUCCEEDED(DwmSetWindowAttribute(window, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOR, sizeof(COLOR)));
+    ')
+    public static function setWindowColor(title:String, targetColor:Int32) {}
 
 	/**
 	 * Makes the process DPI Aware.

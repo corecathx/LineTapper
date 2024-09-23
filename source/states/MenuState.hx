@@ -1,5 +1,7 @@
 package states;
 
+import lime.app.Application;
+import game.native.Windows;
 import objects.menu.Profile;
 import objects.Player;
 import flixel.math.FlxMath;
@@ -40,7 +42,7 @@ class MenuState extends StateBase {
 	var _scaleDiff:Float = 0;
 	override function create() {
 		_scaleDiff = 1 - IntroState._scaleDec;
-
+        
 		// Objects
 		bg = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.WHITE], 1, 90, true);
 		bg.alpha = 0;

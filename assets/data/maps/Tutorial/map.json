@@ -1,4 +1,37 @@
 {
+    "theme": {
+        "bg": "",
+        "scaleX": 1,
+        "scaleY": 1,
+        "bgType": "NONE",
+        "tileColorData": {
+            "zero": {
+                "red": 255,
+                "green": 0,
+                "blue": 0
+            },
+            "one": {
+                "red": 251,
+                "green": 255,
+                "blue": 0
+            },
+            "two": {
+                "red": 0,
+                "green": 238,
+                "blue": 255
+            },
+            "three": {
+                "red": 255,
+                "green": 0,
+                "blue": 255
+            },
+            "fallback": {
+                "red": 255,
+                "green": 255,
+                "blue": 255
+            }
+        }
+    },
 	"tiles": [
 		{
 			"direction": 1,
