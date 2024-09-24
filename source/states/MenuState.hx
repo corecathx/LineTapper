@@ -41,6 +41,7 @@ class MenuState extends StateBase {
 	];
 
     override public function new(?fromIntro:Bool = false){
+        trace('menu!');
         super();
         this.fromIntro = fromIntro;
     }

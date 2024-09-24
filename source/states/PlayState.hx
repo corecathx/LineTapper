@@ -124,10 +124,12 @@ class PlayState extends StateBase
             });
             new FlxTimer().start(1.5, function(tmr:FlxTimer)
             {
+                trace('going to menu!');
                 FlxG.switchState(new MenuState());
 		        Conductor.instance.onBeatTick.remove(beatTick);
             });
         }else{
+            trace('going to menu!');
             FlxG.switchState(new MenuState());
 		    Conductor.instance.onBeatTick.remove(beatTick);
         }
@@ -306,10 +308,17 @@ class PlayState extends StateBase
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE) {
-            FlxG.sound.music.fadeOut(1,0, function(t){
+            tile_group.forEachAlive((tile:ArrowTile) ->
+			{
+                if (tile.tile != null)
+                    tile.tile.visible = false;
+                if (tile.squareTileEffect != null)
+                    tile.squareTileEffect.visible = false;
+			});
+            FlxG.sound.music.fadeOut(0.5,0, function(t){
                 FlxG.sound.music.stop();
-                tile_group.clear();
             });
+            songEnded = true;
 			endSong();
 		}
 
@@ -317,7 +326,7 @@ class PlayState extends StateBase
 			using_autoplay = !using_autoplay;
 		}
 
-		if (FlxG.sound.music != null)
+		if (FlxG.sound.music != null && !songEnded)
 		{
 			if (using_autoplay)
 			{

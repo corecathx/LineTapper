@@ -66,7 +66,6 @@ class Background extends FlxGroup
         {
             video = new Video();
             video.antialiasing = true;
-            video.bitmap.volume = 1; // Doesn't silence the video, just makes it quieter but still very audible.
             video.scrollFactor.set();
             video.bitmap.onFormatSetup.add(function():Void
             {
@@ -77,7 +76,7 @@ class Background extends FlxGroup
                     video.screenCenter();
                 }
             });
-            video.load(asset);
+            video.load(asset, [':no-audio']);
             add(video);
         }
         if (type == IMAGE)
