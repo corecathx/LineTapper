@@ -1,5 +1,6 @@
 package states;
 
+import flixel.util.FlxTimer;
 import lime.app.Application;
 import game.native.Windows;
 import objects.menu.Profile;
@@ -30,6 +31,7 @@ class MenuState extends StateBase {
 	var menuGroup:FlxTypedGroup<FlxText>;
 	var tri_top:FlxSprite; // Triangle Top
 	var tri_bot:FlxSprite; // Triangle Bottom
+    var fromIntro:Bool = false;
 
 	var curSelected:Int = 0;
 	var options:Array<Dynamic> = [
@@ -37,6 +39,11 @@ class MenuState extends StateBase {
 		["play", () -> FlxG.switchState(new MenuDebugState())],
 		["edit", () -> trace("wawer")]
 	];
+
+    override public function new(?fromIntro:Bool = false){
+        super();
+        this.fromIntro = fromIntro;
+    }
 
 	var canInteract:Bool = false;
 	var _scaleDiff:Float = 0;
@@ -74,6 +81,20 @@ class MenuState extends StateBase {
 		var scaleXTarget:Float = (FlxG.width * 0.75) / boxBelow.width;
 		var scaleYTarget:Float = (boxBelow.height - 30) / boxBelow.height;
 
+        if(fromIntro){
+        new FlxTimer().start(1.5, function(t){
+            FlxG.camera.flash(0x42FFFFFF, 1);
+            FlxG.camera.angle = 15;
+            FlxG.camera.zoom += 0.05;
+            FlxTween.tween(FlxG.camera, {angle: 0, zoom: 1}, 1, {ease: FlxEase.quadOut});
+            FlxFlicker.flicker(logo, 0.5, 0.02, true);
+        });
+        }else{
+            FlxG.sound.playMusic(Assets.music('menu_music'), 1, false);
+            FlxG.sound.pause();
+            FlxG.sound.music.time = 6850;
+            FlxG.sound.resume();
+        }
 		FlxTween.tween(boxBelow, {alpha: 0.3}, 1, {ease: FlxEase.expoInOut});
 		FlxTween.tween(boxBelow.scale, {x: scaleXTarget, y: scaleYTarget}, 1, {
 			ease: FlxEase.expoInOut,
@@ -115,7 +136,8 @@ class MenuState extends StateBase {
 		var logo_yDec:Float = 50;
 
 		logo.y -= logo_yDec;
-		FlxFlicker.flicker(logo, 0.5, 0.02, true);
+        if (!fromIntro)
+            FlxFlicker.flicker(logo, 0.5, 0.02, true);
 		FlxTween.tween(logo, {y: logo.y + logo_yDec}, 0.5, {
 			ease: FlxEase.expoInOut,
 			onComplete: (_) -> {
@@ -131,6 +153,12 @@ class MenuState extends StateBase {
 	var confirmed:Bool = false;
 
 	override function update(elapsed:Float) {
+        if (!FlxG.sound.music.playing) {
+            FlxG.sound.playMusic(Assets.music('menu_music'), 1, false);
+            FlxG.sound.pause();
+            FlxG.sound.music.time = 6850;
+            FlxG.sound.resume();
+        }
 		if (FlxG.keys.justPressed.SPACE) {
 			FlxG.resetState();
 		}

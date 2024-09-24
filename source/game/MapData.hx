@@ -16,7 +16,11 @@ typedef TileData = {
 }
 typedef Theme = {
     var tileColorData:TileColorData;
-    var bgData:BackgroundData;
+    var ?bgType:String;
+    var ?scaleX:Float;
+    var ?scaleY:Float;
+    var ?bg:String;
+    var ?bgData:BackgroundData;
 }
 typedef BackgroundData = {
     var ?bgType:String;
@@ -26,6 +30,7 @@ typedef BackgroundData = {
     var ?bg:String;
 }
 typedef LineMap = {
+    var version:String;
     var tiles:Array<TileData>;
     var theme:Theme;
     var bpm:Float;

@@ -34,6 +34,7 @@ class PlayState extends StateBase
     public var misses:Int = 0;
     public var hits:Int = 0;
     public var ratings:Map<String, Rating>;
+    public var legacyMode:Bool = false;
 
 	public var linemap:LineMap;
 	public var speedRate:Float = 1;
@@ -105,8 +106,14 @@ class PlayState extends StateBase
 
     function endSong()
     {
-        if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
-            gameBG.stopVideo();
+        if (linemap.version == "1.0-alpha-v1"){
+            if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgType) == VIDEO)
+                gameBG.stopVideo();
+        }
+        if (linemap.version == "1.0-alpha-v2"){
+            if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
+                gameBG.stopVideo();
+        }
         if (hasEndTransition){
             FlxTween.tween(bg_gradient, {alpha: 0}, 1);
             FlxTween.tween(scoreBoard, {alpha: 0}, 1);
@@ -139,6 +146,10 @@ class PlayState extends StateBase
 		FlxG.sound.music.pause();
 
 		linemap = mapAsset.map;
+
+        if (linemap.version == null){
+            legacyMode = true;
+        }
     }
 
 	function loadSong()
@@ -221,15 +232,29 @@ class PlayState extends StateBase
 		backdrop.alpha = 0;
 		add(backdrop);
 
-        if (linemap.theme.bgData != null){
-            if (linemap.theme.bgData.bg != ''){
-                bg_gradient.visible = false;
-                backdrop.visible = false;
-            
-                var bgType = Background.typeFromString(linemap.theme.bgData.bgType);
-                gameBG = new Background(bgType, 'assets/data/maps/$songName/mapAssets/${linemap.theme.bgData.bg}${bgType == IMAGE ? '.png' : bgType == VIDEO ? '.mp4' : '.png'}', linemap.theme.bgData.scaleX, linemap.theme.bgData.scaleY, linemap.theme.bgData.alpha);
-                add(gameBG);
+        if (!legacyMode){
+            if (linemap.version == "1.0-alpha-v1"){
+                if (linemap.theme.bg != ''){
+                    bg_gradient.visible = false;
+                    backdrop.visible = false;
+                
+                    var bgType = Background.typeFromString(linemap.theme.bgType);
+                    gameBG = new Background(bgType, 'assets/data/maps/$songName/mapAssets/${linemap.theme.bg}${bgType == IMAGE ? '.png' : bgType == VIDEO ? '.mp4' : '.png'}', linemap.theme.scaleX, linemap.theme.scaleY, 0.45);
+                    add(gameBG);
+                }
             }
+            if (linemap.version == "1.0-alpha-v2"){
+                if (linemap.theme.bgData.bg != ''){
+                    bg_gradient.visible = false;
+                    backdrop.visible = false;
+                
+                    var bgType = Background.typeFromString(linemap.theme.bgData.bgType);
+                    gameBG = new Background(bgType, 'assets/data/maps/$songName/mapAssets/${linemap.theme.bgData.bg}${bgType == IMAGE ? '.png' : bgType == VIDEO ? '.mp4' : '.png'}', linemap.theme.bgData.scaleX, linemap.theme.bgData.scaleY, linemap.theme.bgData.alpha);
+                    add(gameBG);
+                }
+            }
+        }else{
+            trace('old ahh linemap');
         }
 
 		tile_group = new FlxTypedGroup<ArrowTile>();
@@ -267,8 +292,14 @@ class PlayState extends StateBase
 		if (FlxG.keys.justPressed.SPACE)
 		{
             songStarted = true;
-            if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO) // has a custom gameBG
-                gameBG.playVideo();
+            if (linemap.version == "1.0-alpha-v1"){
+                if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgType) == VIDEO)
+                    gameBG.playVideo();
+            }
+            if (linemap.version == "1.0-alpha-v2"){
+                if (!bg_gradient.visible && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
+                    gameBG.playVideo();
+            }
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;

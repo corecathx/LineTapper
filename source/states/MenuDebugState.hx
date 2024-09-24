@@ -22,6 +22,10 @@ class MenuDebugState extends FlxState {
         return song = val;
     }
     override function create() {
+        FlxG.sound.music.fadeOut(1, 0, function(t){
+            FlxG.sound.music.stop();
+        });
+        
         topText = new FlxText(20, 180, -1, "START TYPING YOUR SONG'S NAME", 20);
 		topText.setFormat(Assets.font("extenro-extrabold"), 22, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		topText.screenCenter(X);

@@ -15,7 +15,8 @@ class IntroState extends FlxState {
 	var playerBox:FlxSprite;
 	var tileBox:FlxSprite;
 	var ltText:FlxText;
-
+    
+    var playing:Bool = false;
     var currentlyLoading:Bool = false;
 
 	override function create():Void
@@ -114,10 +115,14 @@ class IntroState extends FlxState {
 
         if (_rotateTime > 3) {
             playerBox.angle = 0;
-            FlxTween.tween(ltText, {alpha:0}, 0.5, {ease:FlxEase.linear, onComplete:(_)->{
+            if (!playing){
+                playing = true;
+                FlxG.sound.playMusic(Assets.music('menu_music'));
+            }
+            FlxTween.tween(ltText, {alpha:0}, 5.5, {ease:FlxEase.linear, onComplete:(_)->{
                 ltText.destroy();
                 remove(ltText);
-                FlxG.switchState(new MenuState());
+                FlxG.switchState(new MenuState(true));
             }});
         } else {
             _rotateTime += elapsed;
