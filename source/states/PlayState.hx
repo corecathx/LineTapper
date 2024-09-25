@@ -1,5 +1,6 @@
 package states;
 
+import flixel.ui.FlxBar;
 import objects.Background;
 import game.backend.Lyrics;
 
@@ -45,6 +46,7 @@ class PlayState extends StateBase
 	public var scoreBoard:FlxText;
 	public var lyrics:Lyrics;
 	public var lyricText:FlxText;
+    public var legacyMode:Bool = false;
 
 	public var timeBar:FlxBar;
 	public var timeTextLeft:FlxText;
@@ -329,8 +331,8 @@ class PlayState extends StateBase
         }
 
     public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.direction;
-		player.setPosition(tile.x, tile.y);
+        player.direction = tile.tile.direction;
+		player.setPosition(tile.tile.x, tile.tile.y);
     }
 	
 	public function beatTick(currentBeats:Int) {
