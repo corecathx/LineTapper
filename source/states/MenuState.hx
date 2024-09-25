@@ -67,7 +67,7 @@ class MenuState extends StateBase {
 
 		generateOptions();
 
-		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo"));
+		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo-pl"));
 		logo.screenCenter(X);
 		logo.y = 30;
 		logo.scale.set(0.6, 0.6);
