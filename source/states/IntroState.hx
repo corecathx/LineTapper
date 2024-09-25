@@ -119,10 +119,13 @@ class IntroState extends FlxState {
                 playing = true;
                 FlxG.sound.playMusic(Assets.music('menu_music'));
             }
-            FlxTween.tween(ltText, {alpha:0}, 5.5, {ease:FlxEase.linear, onComplete:(_)->{
+            new FlxTimer().start(5.5, function(_){
                 ltText.destroy();
                 remove(ltText);
                 FlxG.switchState(new MenuState(true));
+            });
+            FlxTween.tween(ltText, {alpha:0}, 2, {ease:FlxEase.linear, onComplete:(_)->{
+                ltText.visible = false;
             }});
         } else {
             _rotateTime += elapsed;

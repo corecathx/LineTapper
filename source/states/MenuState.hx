@@ -2,7 +2,6 @@ package states;
 
 import flixel.util.FlxTimer;
 import lime.app.Application;
-import game.native.Windows;
 import objects.menu.Profile;
 import objects.Player;
 import flixel.math.FlxMath;
