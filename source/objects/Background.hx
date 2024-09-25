@@ -51,6 +51,7 @@ class Background extends FlxGroup
 
     public function stopVideo()
     {
+        remove(video);
         video.stop();
         video.visible = false;
     }

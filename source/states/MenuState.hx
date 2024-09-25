@@ -41,7 +41,6 @@ class MenuState extends StateBase {
 	];
 
     override public function new(?fromIntro:Bool = false){
-        trace('menu!');
         super();
         this.fromIntro = fromIntro;
     }
@@ -100,7 +99,6 @@ class MenuState extends StateBase {
 		FlxTween.tween(boxBelow.scale, {x: scaleXTarget, y: scaleYTarget}, 1, {
 			ease: FlxEase.expoInOut,
 			onComplete: (_) -> {
-				trace("everything should work by now");
 				startMenu();
 			}
 		});
