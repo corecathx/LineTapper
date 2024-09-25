@@ -2,7 +2,7 @@ package states;
 
 import objects.Background;
 import game.backend.Lyrics;
-import flixel.effects.FlxFlicker;
+
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import game.backend.script.ScriptGroup;
@@ -24,6 +24,9 @@ typedef Rating = {
     var arrowTiles:Array<ArrowTile>;
 }
 
+/**
+ * ...
+ */
 class PlayState extends StateBase
 {
 	public static var instance:PlayState;
@@ -33,8 +36,7 @@ class PlayState extends StateBase
     public var songEnded:Bool = false;
     public var misses:Int = 0;
     public var hits:Int = 0;
-    public var ratings:Map<String, Rating>;
-    public var legacyMode:Bool = false;
+    public var ratings:Map<TileRating, Rating>;
 
 	public var linemap:LineMap;
 	public var speedRate:Float = 1;
@@ -43,6 +45,11 @@ class PlayState extends StateBase
 	public var scoreBoard:FlxText;
 	public var lyrics:Lyrics;
 	public var lyricText:FlxText;
+
+	public var timeBar:FlxBar;
+	public var timeTextLeft:FlxText;
+	public var timeTextRight:FlxText;
+
 	public var combo:Int = 0;
 
 	public var camFollow:FlxObject;
@@ -85,7 +92,7 @@ class PlayState extends StateBase
 
         ratings = new Map<String, Rating>();
         ratings = [
-            'Perfect' => {count: 0, arrowTiles: []},
+            PERFECT => {count: 0, arrowTiles: []},
             'Cool' => {count: 0, arrowTiles: []},
             'Meh' => {count: 0, arrowTiles: []}
         ];
@@ -143,6 +150,7 @@ class PlayState extends StateBase
             songEnded = true;
 			endSong();
 		}
+        Conductor.instance.time = 0;
 		FlxG.sound.music.time = 0;
 		FlxG.sound.music.pitch = speedRate;
 		FlxG.sound.music.pause();
@@ -211,15 +219,35 @@ class PlayState extends StateBase
 
 	function loadHUD()
 	{
-		scoreBoard = new FlxText(20, 20, -1, "", 20);
-		scoreBoard.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		inline function makeText(nX:Float,nY:Float,label:String, size:Int, ?bold:Bool = false, ?align:FlxTextAlign):FlxText {
+			var obj:FlxText = new FlxText(nX, nY, -1, label);
+			obj.setFormat(Assets.font("extenro"+(bold?"-bold":"")), size, FlxColor.WHITE, align, OUTLINE, FlxColor.BLACK);
+			obj.cameras = [hudCamera];
+			obj.active = false;
+			return obj;
+		}
+		// HUD Text Objects. //
+		scoreBoard = makeText(20, 20, "", 14, true, CENTER);
 		add(scoreBoard);
-		scoreBoard.cameras = [hudCamera];
 
-		lyricText = new FlxText(20, 20, -1, "", 16);
-		lyricText.setFormat(Assets.font("extenro"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		lyricText = makeText(20, 20, "", 14, false, CENTER);
 		add(lyricText);
-		lyricText.cameras = [hudCamera];
+
+		// Time Bar Objects. //
+		timeBar = new FlxBar(0,0,LEFT_TO_RIGHT, FlxG.width,5,null,"",0,1,false);
+		timeBar.numDivisions = 2000; // uhhh
+		timeBar.createFilledBar(0x00000000, 0xFFFFFFFF);
+		timeBar.cameras = [hudCamera];
+		add(timeBar);
+		
+		var startY:Float = timeBar.y + timeBar.height + 5;
+
+		timeTextLeft = makeText(10, startY, "", 12, false, LEFT);
+		add(timeTextLeft);
+
+		timeTextRight = makeText(FlxG.width, startY, "", 12, false, LEFT);
+		timeTextRight.x -= timeTextRight.width;
+		add(timeTextRight);
 	}
 
 	function loadGameplay()
@@ -271,12 +299,57 @@ class PlayState extends StateBase
 	override public function update(elapsed:Float)
 	{
 		scripts.executeFunc("update", [elapsed]);
-		if (FlxG.sound.music != null && FlxG.sound.music.playing){
+		if (FlxG.sound.music != null && FlxG.sound.music.playing)
 			Conductor.instance.time = FlxG.sound.music.time;
-            // my ass is NOT using 60% of my brain power to wrap my mind around this.. rewriting this later.
+
+		_update_HUD(elapsed);
+		_update_gameplay(elapsed);
+
+		super.update(elapsed);
+		scripts.executeFunc("postUpdate", [elapsed]);
+	}
+
+	public function onTileHit(tile:ArrowTile, ?ratingName:TileRating = PERFECT)
+	{
+		if (tile == null) return;
+		tile.onTileHit(ratingName);
+		
+		scripts.executeFunc("onTileHit", [tile]);
+		//FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+		tile.already_hit = true;
+		if (using_autoplay)
+			updatePlayerPosition(tile);
+		combo++;
+		scoreBoard.scale.x += 0.3;
+		FlxG.camera.zoom += 0.05;
+		var rating = ratings.get(ratingName);
+		rating.count++;
+		rating.arrowTiles.push(tile);
+		scripts.executeFunc("postTileHit", [tile]);
+	}
+
+    public function updatePlayerPosition(tile:ArrowTile){
+        player.direction = tile.direction;
+		player.setPosition(tile.x, tile.y);
+    }
+	
+	public function beatTick(currentBeats:Int) {
+		scripts.executeFunc("onBeatTick", [currentBeats]);
+		if (player != null)
+			player.scale.x = player.scale.y += 0.3;
+		scripts.executeFunc("postBeatTick", [currentBeats]);
+	}
+
+	///////////////// INTERNAL FUNCTIONS /////////////////
+
+	/**
+	 * Updates the Heads Up Display.
+	 */
+	function _update_HUD(elapsed:Float) {
+		if (FlxG.sound.music != null && FlxG.sound.music.playing){
 			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
 		} else {
-			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
+			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD / Arrow Keys";
 		}
 		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 24));
 		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
@@ -286,6 +359,16 @@ class PlayState extends StateBase
 		lyricText.setPosition(0,FlxG.height - (scoreBoard.height + 80));
 		lyricText.screenCenter(X);
 
+		timeBar.percent = (Conductor.instance.time / FlxG.sound.music.length)*100;
+		timeTextLeft.text = Utils.formatMS(Conductor.instance.time);
+		timeTextRight.text =  Utils.formatMS(FlxG.sound.music.length);
+		timeTextRight.x = FlxG.width - (timeTextRight.width+10);
+	}
+
+	/**
+	 * Updates the gameplay, such as camera, controls, and tile update.
+	 */
+	function _update_gameplay(elapsed:Float) {
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, 1 - (elapsed * 12));
 
 		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
@@ -351,6 +434,8 @@ class PlayState extends StateBase
 				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
 				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
+
+
 		}
 		super.update(elapsed);
 		scripts.executeFunc("postUpdate", [elapsed]);
