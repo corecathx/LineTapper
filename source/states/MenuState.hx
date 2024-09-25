@@ -8,7 +8,7 @@ import objects.Player;
 import flixel.math.FlxMath;
 import haxe.Constraints.Function;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.effects.FlxFlicker;
+
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxGradient;
 import flixel.tweens.FlxEase;
@@ -67,7 +67,7 @@ class MenuState extends StateBase {
 
 		generateOptions();
 
-		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo-pl"));
+		logo = new FlxSprite().loadGraphic(Assets.image("menu/logo"));
 		logo.screenCenter(X);
 		logo.y = 30;
 		logo.scale.set(0.6, 0.6);

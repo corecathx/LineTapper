@@ -1,19 +1,19 @@
 {
 	"tiles": [
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 4
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 8
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 12
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 14
 		},
 		{
@@ -21,35 +21,35 @@
 			"step": 16
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 18
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 20
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 24
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 28
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 30
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 32
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 34
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 36
 		},
 		{
@@ -57,55 +57,55 @@
 			"step": 40
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 44
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 48
 		},
 		{
-			"direction": 3,
+			"direction": 0,
 			"step": 50
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 54
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 58
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 62
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 64
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 68
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 72
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 76
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 78
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 80
 		},
 		{
-			"direction": 2,
+			"direction": 0,
 			"step": 82
 		},
 		{
@@ -113,11 +113,11 @@
 			"step": 84
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 88
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 92
 		},
 		{
@@ -129,19 +129,19 @@
 			"step": 96
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 98
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 100
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 104
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 108
 		},
 		{
@@ -149,15 +149,15 @@
 			"step": 112
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 116
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 122
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 124
 		},
 		{
@@ -165,15 +165,15 @@
 			"step": 126
 		},
 		{
-			"direction": 1,
+			"direction": 3,
 			"step": 128
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 132
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 136
 		},
 		{
@@ -181,27 +181,27 @@
 			"step": 140
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 142
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 144
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 146
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 148
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 152
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 156
 		},
 		{
@@ -209,11 +209,11 @@
 			"step": 158
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 160
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 162
 		},
 		{
@@ -221,15 +221,15 @@
 			"step": 164
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 168
 		},
 		{
-			"direction": 0,
+			"direction": 2,
 			"step": 172
 		},
 		{
-			"direction": 0,
+			"direction": 2,
 			"step": 176
 		},
 		{
@@ -237,91 +237,91 @@
 			"step": 180
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 186
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 188
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 190
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 192
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 196
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 200
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 204
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 206
 		},
 		{
-			"direction": 3,
+			"direction": 0,
 			"step": 208
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 210
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 212
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 216
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 220
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 222
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 224
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 226
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 228
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 232
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 236
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 238
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 242
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 246
 		},
 		{
@@ -329,27 +329,27 @@
 			"step": 248
 		},
 		{
-			"direction": 2,
+			"direction": 0,
 			"step": 250
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 252
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 254
 		},
 		{
-			"direction": 1,
+			"direction": 3,
 			"step": 256
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 260
 		},
 		{
-			"direction": 3,
+			"direction": 0,
 			"step": 264
 		},
 		{
@@ -357,7 +357,7 @@
 			"step": 268
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 270
 		},
 		{
@@ -385,11 +385,11 @@
 			"step": 286
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 288
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 290
 		},
 		{
@@ -405,11 +405,11 @@
 			"step": 300
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 302
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 306
 		},
 		{
@@ -417,31 +417,31 @@
 			"step": 310
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 312
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 314
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 316
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 318
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 320
 		},
 		{
-			"direction": 0,
+			"direction": 3,
 			"step": 324
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 328
 		},
 		{
@@ -449,7 +449,7 @@
 			"step": 332
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 334
 		},
 		{
@@ -457,11 +457,11 @@
 			"step": 336
 		},
 		{
-			"direction": 2,
+			"direction": 0,
 			"step": 338
 		},
 		{
-			"direction": 0,
+			"direction": 2,
 			"step": 340
 		},
 		{
@@ -469,11 +469,11 @@
 			"step": 344
 		},
 		{
-			"direction": 2,
+			"direction": 3,
 			"step": 348
 		},
 		{
-			"direction": 0,
+			"direction": 2,
 			"step": 350
 		},
 		{
@@ -481,51 +481,51 @@
 			"step": 352
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 354
 		},
 		{
-			"direction": 3,
+			"direction": 2,
 			"step": 356
 		},
 		{
-			"direction": 0,
+			"direction": 1,
 			"step": 360
 		},
 		{
-			"direction": 1,
+			"direction": 0,
 			"step": 364
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 366
 		},
 		{
-			"direction": 0,
+			"direction": 2,
 			"step": 370
 		},
 		{
-			"direction": 2,
+			"direction": 0,
 			"step": 374
 		},
 		{
-			"direction": 3,
+			"direction": 1,
 			"step": 376
 		},
 		{
-			"direction": 3,
+			"direction": 0,
 			"step": 378
 		},
 		{
-			"direction": 1,
+			"direction": 3,
 			"step": 380
 		},
 		{
-			"direction": 2,
+			"direction": 1,
 			"step": 382
 		},
 		{
-			"direction": 1,
+			"direction": 2,
 			"step": 384
 		}
 	],

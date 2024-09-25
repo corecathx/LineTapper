@@ -19,6 +19,13 @@ import objects.Player.PlayerDirection;
 	var fallback:RGB;
 }
 
+enum abstract TileRating(String) from String to String {
+	var PERFECT = "perfect";
+	var COOL = "good";
+	var MEH = "meh";
+	var MISS = "miss";
+}
+
 /**
  * Arrow Tile group, used during gameplay to display multiple objects linked to the main ArrowTileSpr.
  */

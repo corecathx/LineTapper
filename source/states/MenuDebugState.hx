@@ -2,7 +2,7 @@ package states;
 
 import sys.FileSystem;
 import flixel.util.FlxTimer;
-import flixel.effects.FlxFlicker;
+
 import lime.app.Application;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
