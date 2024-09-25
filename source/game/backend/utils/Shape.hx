@@ -5,14 +5,9 @@ import openfl.geom.Rectangle;
 import flixel.math.FlxRect;
 import openfl.display.BitmapData;
 
-<<<<<<<< HEAD:source/game/backend/utils/Shape.hx
 class Shape extends FlxSprite
 {
     public var hollowPercent(default, set):Float = 0;
-========
-class TileEffect extends FlxSprite {
-    public var outline(default, set):Float = 0;
->>>>>>>> 41faf36f476aefa5c917dc3f05e8a70a57d40935:source/objects/TileEffect.hx
     var _ogPixels:BitmapData;
     
     override public function loadGraphic(Graphic:Dynamic, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, Key:String = ""):FlxSprite {
