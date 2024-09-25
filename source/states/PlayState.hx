@@ -309,24 +309,24 @@ class PlayState extends StateBase
 		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
-	public function onTileHit(tile:ArrowTile, ?ratingName:TileRating = PERFECT)
-	{
-		if (tile == null) return;
-		tile.onTileHit(ratingName);
-		
-		scripts.executeFunc("onTileHit", [tile]);
-		//FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-		tile.already_hit = true;
-		if (using_autoplay)
-			updatePlayerPosition(tile);
-		combo++;
-		scoreBoard.scale.x += 0.3;
-		FlxG.camera.zoom += 0.05;
-		var rating = ratings.get(ratingName);
-		rating.count++;
-		rating.arrowTiles.push(tile);
-		scripts.executeFunc("postTileHit", [tile]);
-	}
+	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
+        {
+            if (tile.tile != null && tile.squareTileEffect != null){
+                scripts.executeFunc("onTileHit", [tile]);
+                FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
+                tile.onTileHit();
+                tile.tile.already_hit = true;
+                if (using_autoplay)
+                    updatePlayerPosition(tile);
+                combo++;
+                scoreBoard.scale.x += 0.3;
+                FlxG.camera.zoom += 0.05;
+                var rating = ratings.get(ratingName);
+                rating.count++;
+                rating.arrowTiles.push(tile);
+                scripts.executeFunc("postTileHit", [tile]);
+            }
+        }
 
     public function updatePlayerPosition(tile:ArrowTile){
         player.direction = tile.direction;
@@ -441,32 +441,5 @@ class PlayState extends StateBase
 		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
-	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
-	{
-        if (tile.tile != null && tile.squareTileEffect != null){
-            scripts.executeFunc("onTileHit", [tile]);
-            FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
-            tile.onTileHit();
-		    tile.tile.already_hit = true;
-            if (using_autoplay)
-		        updatePlayerPosition(tile);
-		    combo++;
-		    scoreBoard.scale.x += 0.3;
-		    FlxG.camera.zoom += 0.05;
-            var rating = ratings.get(ratingName);
-            rating.count++;
-            rating.arrowTiles.push(tile);
-            scripts.executeFunc("postTileHit", [tile]);
-        }
-	}
-
-    public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.tile.direction;
-		player.setPosition(tile.tile.x, tile.tile.y);
-    }
-
-	public function beatTick() {
-		if (player != null)
-			player.scale.x = player.scale.y += 0.3;
-	}
+	
 }
