@@ -98,25 +98,8 @@ class ArrowTile extends FlxSprite {
 		loadGraphic(Assets.image("arrow_tile"));
 		setGraphicSize(Player.BOX_SIZE, Player.BOX_SIZE);
 		updateHitbox();
-		color = switch (step % 4) {
-			case 0: FlxColor.fromRGB(tileColorData.zero.red, tileColorData.zero.green, tileColorData.zero.blue, 255);
-			case 1: FlxColor.fromRGB(tileColorData.one.red, tileColorData.one.green, tileColorData.one.blue, 255);
-			case 2: FlxColor.fromRGB(tileColorData.two.red, tileColorData.two.green, tileColorData.two.blue, 255);
-			case 3: FlxColor.fromRGB(tileColorData.three.red, tileColorData.three.green, tileColorData.three.blue, 255);
-			default: FlxColor.fromRGB(tileColorData.fallback.red, tileColorData.fallback.green, tileColorData.fallback.blue, 255);
-		}
-
-		switch (dir) {
-			case LEFT:
-				angle = 90;
-			case RIGHT:
-				angle = -90;
-			case UP:
-				angle = 180;
-			default:
-				angle = 0;
-		}
-		alpha = 0;
+		
+        initProperties();
 
 		outlineEffect = cast new TileEffect(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
         outlineEffect.outline = 0.95;
@@ -131,17 +114,35 @@ class ArrowTile extends FlxSprite {
 		ratingText.alpha = 0;
 	}
 
+    function initProperties() {
+        // Colors //
+        var colorIndex = step % 4;
+        var colorData = [
+            tileColorData.zero, tileColorData.one, tileColorData.two, tileColorData.three
+        ];
+        
+        var selectedColor = (colorIndex < colorData.length) ? colorData[colorIndex] : tileColorData.fallback;
+        color = FlxColor.fromRGB(selectedColor.red, selectedColor.green, selectedColor.blue, 255);
+
+        // Direction / angles //
+        switch (direction) {
+			case LEFT:
+				angle = 90;
+			case RIGHT:
+				angle = -90;
+			case UP:
+				angle = 180;
+			default:
+				angle = 0;
+		}
+		alpha = 0;
+    }
+
 	override function draw() {
 		super.draw();
 		outlineEffect.x = x - (outlineEffect.width-width)/2;
 		outlineEffect.y = y - (outlineEffect.height-height)/2;
 		outlineEffect.draw();
-
-		if ((already_hit || missed) && ratingText.visible) {
-			ratingText.x = x - (ratingText.width-width)/2;
-			ratingText.y = y - (ratingText.height-height)/2;
-			ratingText.draw();
-		}
 	}
 
 	var _angleAdd:Float = 0;
@@ -183,33 +184,22 @@ class ArrowTile extends FlxSprite {
 		super.update(elapsed);
 	}
 
+    /**
+        Callback function that will be fired when this tile is hit.
+    **/
 	public function onTileHit(?rating:TileRating = MISS):Void {
-		// TODO: Implement stuff.
-		if (ratingText != null) {
-			this.rating = rating;
-			ratingText.text = (cast rating).toUpperCase();
-			ratingText.color = switch (rating) {
-				case PERFECT: 0xFF00FFFF;
-				case COOL: 0xFF00FF00;
-				case MEH: 0xFFFFFF00;
-				case MISS: 0xFFFF0000;
-				default: 0xFFFFFFFF;
-			}
-			
-			var time:Float = Conductor.instance.beat_ms/1000;
-			FlxTimer.wait(time,()->{
-				FlxFlicker.flicker(ratingText, time, 0.05, false);
-			});
-		}
+        PlayState.instance.player.showRating(this,rating);
 	}
 
+    /**
+        Callback function that will be fired when this tile is missed.
+    **/
 	public function onTileMiss():Void {
-		// TODO: Implement stuff.
+        PlayState.instance.player.showRating(this,MISS);
 	}
 
 	override function destroy() {
 		if (outlineEffect != null) outlineEffect.destroy();
-		if (ratingText != null) ratingText.destroy();
 		super.destroy();
 	}
 }

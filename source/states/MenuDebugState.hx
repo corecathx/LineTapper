@@ -1,5 +1,6 @@
 package states;
 
+import flixel.input.FlxInput;
 import sys.FileSystem;
 import flixel.util.FlxTimer;
 
@@ -14,6 +15,7 @@ class MenuDebugState extends FlxState {
     var inputText:FlxText;
     var noType:Bool = false;
     var inputCaret:FlxSprite;
+    var lastInvalidSong:String = "";
     var song(default,set):String = "Tutorial";
     function set_song(val:String):String {
         if (inputText != null)
@@ -55,47 +57,50 @@ class MenuDebugState extends FlxState {
     var keyTime:Float = 0;
     function handleKeyInput(elapsed:Float) {
         if (FlxG.keys.justPressed.ENTER) {
-            if (FileSystem.exists('${Assets._MAP_PATH}/$song')){
+            inputText.color = FlxColor.RED;
+            lastInvalidSong = song;
+    
+            if (song.length > 0 && FileSystem.exists('${Assets._MAP_PATH}/$song')) {
                 FlxG.switchState(new PlayState(song.trim()));
                 FlxG.sound.play(Assets.sound("menu/key_press"));
-            }else{
+            } else {
                 FlxFlicker.flicker(inputText, 1, 0.02, true);
-                inputText.color = FlxColor.RED;
-                set_song('INVALID');
+                song = 'INVALID';
                 noType = true;
-                new FlxTimer().start(1, function(tmr:FlxTimer)
-                {
+                new FlxTimer().start(1, function(tmr:FlxTimer) {
                     noType = false;
                     inputText.color = FlxColor.WHITE;
-                    set_song('TUTORIAL');
+                    song = lastInvalidSong;
                 });
-                
             }
-        } else if (FlxG.keys.firstPressed() != FlxKey.NONE && FlxG.keys.firstPressed() != FlxKey.SHIFT && !noType) {
+        } else if (FlxG.keys.firstPressed() != FlxKey.NONE && !noType) {
             if (keyTime == 0 || keyTime > 0.3) {
-                if (keyTime > 0.3) keyTime = 0.2;
-                var keyPressed:FlxKey = FlxG.keys.firstPressed();
-                switch (keyPressed) {
-                    case FlxKey.BACKSPACE:
-                        FlxG.sound.play(Assets.sound("menu/key_cancel"));
-                        song = song.substring(0,song.length-1);
-                    case FlxKey.SPACE:
-                        FlxG.sound.play(Assets.sound("menu/key_press"));
-                        song += " ";
-                    default:
-                        var keyName:String = Std.string(keyPressed);
-                        if (allowedKeys.contains(keyName)) {
+                if (keyTime > 0.3) keyTime = 0.25;
+                var keyPressed:Array<FlxInput<FlxKey>> = FlxG.keys.getIsDown();
+                for (i in keyPressed) {
+                    var key:FlxKey = i.ID;
+                    switch (key) {
+                        case FlxKey.BACKSPACE:
+                            FlxG.sound.play(Assets.sound("menu/key_cancel"));
+                            song = song.substring(0, song.length - 1);
+                        case FlxKey.SPACE:
                             FlxG.sound.play(Assets.sound("menu/key_press"));
-                            if (!FlxG.keys.pressed.SHIFT) 
-                                keyName = keyName.toLowerCase();
-                            song += keyName;
-                            if(song.length >= 25) song = song.substring(1);
-                        }
+                            song += " ";
+                        default:
+                            var keyName:String = Std.string(key);
+                            if (allowedKeys.contains(keyName)) {
+                                FlxG.sound.play(Assets.sound("menu/key_press"));
+                                keyName = FlxG.keys.pressed.SHIFT ? keyName.toUpperCase() : keyName.toLowerCase();
+                                song += keyName;
+                                if (song.length >= 25) song = song.substring(1);
+                            }
+                    }
                 }
             }
-            keyTime+=elapsed;
+            keyTime += elapsed;
         } else {
             keyTime = 0;
         }
     }
+    
 }

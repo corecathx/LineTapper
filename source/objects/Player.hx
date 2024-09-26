@@ -34,10 +34,16 @@ class Player extends FlxSprite {
 	public var trail_time:Float = 0;
 	public var trail_delay:Float = 0.05;
 	public var started:Bool = false;
+	 
+	public var ratingText:FlxText;
 
 	public function new(nX:Float, nY:Float) {
 		super(nX, nY);
 		makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
+
+		ratingText = new FlxText(0,0,-1,"MISS",20);
+		ratingText.setFormat(Assets.font("extenro"), 12, FlxColor.RED, CENTER, OUTLINE, FlxColor.BLACK);
+		ratingText.alpha = 0;
 	}
 
 	override function update(elapsed:Float) {
@@ -47,7 +53,38 @@ class Player extends FlxSprite {
 
 		handleTrails(elapsed);
 		updateScale(elapsed);
+		updateRatingText(elapsed);
 		super.update(elapsed);
+	}
+
+	var _ratingTime:Float = 0;
+	function updateRatingText(elapsed:Float) {
+		if (ratingText.scale.x <= 0) return;
+
+        _ratingTime += elapsed;
+        var _targetSize:Float = _ratingTime > (Conductor.instance.beat_ms/1000)*0.9 ? 0 : 1;
+        var _currentSize:Float = FlxMath.lerp(_targetSize,ratingText.scale.x,1-(elapsed*12));
+        ratingText.scale.set(_currentSize,_currentSize);
+
+	}
+
+	public function showRating(tile:ArrowTile, rating:TileRating) {
+		if (tile == null) {
+			trace("Tile is null, ignoring showRating command.");
+			return;
+		}
+        
+		ratingText.text = (cast rating).toUpperCase();
+		ratingText.color = switch (rating) {
+			case PERFECT: 0xFF00FFFF;
+			case COOL: 0xFF00FF00;
+			case MEH: 0xFFFFFF00;
+			case MISS: 0xFFFF0000;
+			default: 0xFFFFFFFF;
+		}
+        _ratingTime = 0;
+        ratingText.alpha = 1;
+        ratingText.scale.set(1.4,1.4); // zoom inn lol
 	}
 
 	function updateProperties() {
@@ -66,6 +103,12 @@ class Player extends FlxSprite {
 				i.draw();
 		}
 		super.draw();
+
+        if (ratingText.scale.x > 0 || ratingText.visible) {
+			ratingText.x = x - (ratingText.width-width)/2;
+			ratingText.y = y - (ratingText.height+10);
+			ratingText.draw();
+        }
 	}
 
 	private var _curTime:Float = 0;

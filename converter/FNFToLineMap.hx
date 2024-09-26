@@ -33,7 +33,8 @@ class FNFToLineMap
 	static function main()
 	{
 		trace("hi");
-		Sys.command("cls");
+		var isWindows:Bool = Sys.systemName() == "Windows";
+		Sys.command(isWindows ? "cls" : "clear");
 		Sys.println("[ \x1b[36mFNF To LineMap\x1b[0m ]");
         Sys.print("Path: ./fnfchart/");
 		var path:String = "./fnfchart/" + Sys.stdin().readLine();
