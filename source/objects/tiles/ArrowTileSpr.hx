@@ -2,7 +2,7 @@ package objects.tiles;
 
 import game.Conductor;
 import objects.tiles.ArrowTile.TileColorData;
-import objects.Player.PlayerDirection;
+import objects.Player.Direction;
 
 /**
  * Arrow Tile object, a component of the ArrowTile group.
@@ -22,9 +22,9 @@ import objects.Player.PlayerDirection;
 	public var canUpdateColors:Bool = true;
 
 	/**
-	 * Arrow direction of this tile points at. (`PlayerDirection`)
+	 * Arrow direction of this tile points at. (`Direction`)
 	 */
-	public var direction:PlayerDirection = DOWN;
+	public var direction:Direction = DOWN;
 
 	/**
 	 * Variable to assist with miss handling.
@@ -54,7 +54,7 @@ import objects.Player.PlayerDirection;
 	 * @param curStep This tile's Step time.
 	 * @param tileColorData Color Data for this ArrowTile.
 	 */
-	public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int, group:ArrowTile, ?tileColorData:TileColorData) {
+	public function new(nX:Float, nY:Float, dir:Direction, curStep:Int, group:ArrowTile, ?tileColorData:TileColorData) {
 		super(nX, nY);
 		step = curStep;
 		direction = dir;

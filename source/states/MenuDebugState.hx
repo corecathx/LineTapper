@@ -57,14 +57,13 @@ class MenuDebugState extends FlxState {
     var keyTime:Float = 0;
     function handleKeyInput(elapsed:Float) {
         if (FlxG.keys.justPressed.ENTER) {
-            inputText.color = FlxColor.RED;
             lastInvalidSong = song;
-    
             if (song.length > 0 && FileSystem.exists('${Assets._MAP_PATH}/$song')) {
                 FlxG.switchState(new PlayState(song.trim()));
                 FlxG.sound.play(Assets.sound("menu/key_press"));
             } else {
                 FlxFlicker.flicker(inputText, 1, 0.02, true);
+                inputText.color = FlxColor.RED;
                 song = 'INVALID';
                 noType = true;
                 new FlxTimer().start(1, function(tmr:FlxTimer) {

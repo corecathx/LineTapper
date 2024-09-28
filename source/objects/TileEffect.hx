@@ -5,22 +5,24 @@ import openfl.utils.ByteArray;
 import flixel.FlxSprite;
 import flixel.math.FlxRect;
 
+/**
+ * The hit approach outline of a Tile object.
+ */
 class TileEffect extends FlxSprite {
     public var outline(default, set):Float = 0;
     var _ogPixels:BitmapData;
 
-    override public function loadGraphic(Graphic:Dynamic, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, Key:String = ""):FlxSprite {
+    override public function loadGraphic(Graphic:Dynamic, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, Key:String = ""):TileEffect {
         super.loadGraphic(Graphic, Animated, Width, Height, Unique, Key);
         _ogPixels = this.pixels.clone();
         return this;
     }
-    override public function makeGraphic(Width:Int, Height:Int, Color:FlxColor = 0xFFFFFFFF, Unique:Bool = false, Key:String = ""):FlxSprite {
+    override public function makeGraphic(Width:Int, Height:Int, Color:FlxColor = 0xFFFFFFFF, Unique:Bool = false, Key:String = ""):TileEffect {
         super.makeGraphic(Width, Height, Color, Unique, Key);
         _ogPixels = this.pixels.clone();
         return this;
     }
     
-
     function set_outline(val:Float):Float {
         if (val < 0) val = 0;
         if (val > 1) val = 1;

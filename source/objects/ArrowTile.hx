@@ -10,7 +10,7 @@ import game.Utils.RGB;
 import flixel.graphics.FlxGraphic;
 import game.Conductor;
 import lime.graphics.Image;
-import objects.Player.PlayerDirection;
+import objects.Player.Direction;
 import openfl.display.BitmapData;
 
 enum abstract TileRating(String) from String to String {
@@ -46,9 +46,9 @@ class ArrowTile extends FlxSprite {
 	public var canUpdateColors:Bool = true;
 
 	/**
-	 * Arrow direction of this tile points at. (`PlayerDirection`)
+	 * Arrow direction of this tile points at. (`Direction`)
 	 */
-	public var direction:PlayerDirection = DOWN;
+	public var direction:Direction = DOWN;
 
 	/**
 	 * Variable to assist with miss handling.
@@ -58,7 +58,7 @@ class ArrowTile extends FlxSprite {
 	/**
 	 * This tile's Step time.
 	 */
-	public var step:Int = 0;
+	public var step:Float = 0;
 
 	/**
 	 * Indicates whether this tile have been hit.
@@ -78,7 +78,6 @@ class ArrowTile extends FlxSprite {
 	public var hitsound_played:Bool = false;
 	
 	public var outlineEffect:TileEffect;
-	public var ratingText:FlxText;
 
 	/**
 	 * Creates a new ArrowTile object.
@@ -88,7 +87,7 @@ class ArrowTile extends FlxSprite {
 	 * @param curStep This tile's Step time.
 	 * @param tileColorData Color Data for this ArrowTile.
 	 */
-	public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int, ?tileColorData:TileColorData) {
+	public function new(nX:Float, nY:Float, dir:Direction, curStep:Int, ?tileColorData:TileColorData) {
 		super(nX, nY);
 		step = curStep;
 		direction = dir;
@@ -101,22 +100,17 @@ class ArrowTile extends FlxSprite {
 		
         initProperties();
 
-		outlineEffect = cast new TileEffect(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
+		outlineEffect = new TileEffect(nX,nY).makeGraphic(300,300,0xFFFFFFFF);
         outlineEffect.outline = 0.95;
 		outlineEffect.alpha = 0;
 		var _graphicSize:Float = Player.BOX_SIZE + (200);
 		outlineEffect.setGraphicSize(_graphicSize,_graphicSize);
 		outlineEffect.updateHitbox();
-
-		ratingText = new FlxText(0,0,-1,"MISS",20);
-		ratingText.setFormat(Assets.font("extenro"), 14, FlxColor.RED, CENTER, OUTLINE, FlxColor.BLACK);
-		ratingText.borderSize = 4;
-		ratingText.alpha = 0;
 	}
 
     function initProperties() {
         // Colors //
-        var colorIndex = step % 4;
+        var colorIndex = Std.int(step % 4);
         var colorData = [
             tileColorData.zero, tileColorData.one, tileColorData.two, tileColorData.three
         ];
@@ -178,8 +172,6 @@ class ArrowTile extends FlxSprite {
 
 		if (!missed && !already_hit) {
 			_angleAdd = FlxG.random.float(-90, 90);
-		} else {
-			ratingText.alpha += 5 * elapsed;
 		}
 		super.update(elapsed);
 	}
@@ -188,14 +180,15 @@ class ArrowTile extends FlxSprite {
         Callback function that will be fired when this tile is hit.
     **/
 	public function onTileHit(?rating:TileRating = MISS):Void {
-        PlayState.instance.player.showRating(this,rating);
+		this.rating = rating;
+        PlayState.instance.player.showRating(this);
 	}
 
     /**
         Callback function that will be fired when this tile is missed.
     **/
 	public function onTileMiss():Void {
-        PlayState.instance.player.showRating(this,MISS);
+        PlayState.instance.player.showRating(this);
 	}
 
 	override function destroy() {

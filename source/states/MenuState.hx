@@ -1,5 +1,7 @@
 package states;
 
+import flixel.util.FlxTimer;
+import flixel.graphics.FlxGraphic;
 import objects.menu.Profile;
 import objects.Player;
 import flixel.math.FlxMath;
@@ -121,7 +123,11 @@ class MenuState extends StateBase {
 				for (obj in [tri_bot, tri_top]) {
 					FlxTween.tween(obj, {alpha: 1}, 1, {ease: FlxEase.expoOut});
 				}
-				FlxTween.tween(user_profile,{x: 20},1, {ease: FlxEase.expoOut});
+				FlxTimer.wait(0.5, ()->{
+					trace(user_profile.x);
+					FlxTween.tween(user_profile,{x: 20},1, {ease: FlxEase.expoOut});
+				});
+
 			}
 		});
 	}
@@ -163,6 +169,7 @@ class MenuState extends StateBase {
 	var _timePassed:Float = 0;
 	var _timeTracked:Float = 0;
 
+	var _cachedGraphic:FlxGraphic = null;
 	function menuUpdate(elapsed:Float) {
 		if (!canInteract)
 			return;
@@ -170,11 +177,15 @@ class MenuState extends StateBase {
 		_timePassed += elapsed;
 		bg.alpha = (Math.sin(_timePassed) * 0.1);
 
-        // There is FlxEmitter for a reason, Core. I'm remaking this the intended way later.
-		// Particle Generator (funny)
 		if (_timePassed - _timeTracked > FlxG.random.float(0.4, 1.3)) {
 			_timeTracked = _timePassed;
-			var s:FlxSprite = new FlxSprite(FlxG.random.float(0, FlxG.width), FlxG.height + FlxG.random.float(30, 50)).makeGraphic(10, 10);
+			var s:FlxSprite = new FlxSprite(FlxG.random.float(0, FlxG.width), FlxG.height + FlxG.random.float(30, 50));
+			if (_cachedGraphic == null) {
+				s.makeGraphic(10, 10);
+				_cachedGraphic = s.graphic;
+			} else {
+				s.loadGraphic(_cachedGraphic);
+			}
 			var scaling:Float = FlxG.random.float(0.1, 1.2);
 			s.active = false;
 			s.scale.set(scaling, scaling);

@@ -6,7 +6,7 @@ import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import game.Utils.RGB;
-import objects.Player.PlayerDirection;
+import objects.Player.Direction;
 
 /**
  * Arrow Tile colors from the map.
@@ -25,7 +25,7 @@ import objects.Player.PlayerDirection;
 class ArrowTile extends FlxGroup {
     public var tile:ArrowTileSpr;
     public var squareTileEffect:SquareArrowTileEffect;
-    public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int, ?tileColorData:TileColorData){
+    public function new(nX:Float, nY:Float, dir:Direction, curStep:Int, ?tileColorData:TileColorData){
         super();
         tile = new ArrowTileSpr(nX, nY, dir, curStep, this, tileColorData);
         add(tile);
