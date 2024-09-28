@@ -3,8 +3,10 @@ package game.native;
 import cpp.Int32;
 
 /**
- * Native helper class for Windows.
- * - CoreCat :]
+ * Native Windows Functions.
+ * You aren't supposed to use this directly.
+ * To use the functions, use NativeUtil.
+ * - ZSolarDev :|
  */
 @:buildXml('
 <target id="haxe">
@@ -49,13 +51,13 @@ float GetCPULoad()
    return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime)+FileTimeToInt64(userTime))*100.0f : -1.0f;
 }
 ')
-class Windows
+
+
+@:allow(game.backend.utils.NativeUtil)
+class NativeFunctions
 {
-    /**
-     * Allows the user to switch between Dark Mode or Light Mode in the window.
-     * @param title Window title, do something like `lime.app.Application.current.window.title`.
-     * @param enable Whether to enable / disable Dark Mode.
-     */
+    ///////////////// SETTER FUNCTIONS /////////////////
+
     @:functionCode('
         int darkMode = enable ? 1 : 0;
         
@@ -67,13 +69,8 @@ class Windows
             DwmSetWindowAttribute(window, 20, &darkMode, sizeof(darkMode));
         }
     ')
-    public static function setWindowDarkMode(title:String, enable:Bool) {}
+    private static function setWindowDarkMode(title:String, enable:Bool) {}
 
-    /**
-     * Allows the user to set the window title bar color. (WINDOWS 11 ONLY)
-     * @param title Window title, do something like `lime.app.Application.current.window.title`.
-     * @param targetColor This is a hex code that is in 0x00BBGGRR. Not RGB, but BGR.
-     */
     @:functionCode('
         COLORREF COLOR = targetColor;
         
@@ -83,19 +80,16 @@ class Windows
         
         BOOL SET_CAPTION_COLOR = SUCCEEDED(DwmSetWindowAttribute(window, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR, &COLOR, sizeof(COLOR)));
     ')
-    public static function setWindowColor(title:String, targetColor:Int32) {}
+    private static function setWindowColor(title:String, targetColor:Int32) {}
 
-	/**
-	 * Makes the process DPI Aware.
-	 */
 	@:functionCode('
         SetProcessDPIAware();
     ')
-	public static function setDPIAware(){}
+	private static function setDPIAware(){}
 
-    /**
-     * Returns current free drive size in bytes.
-     */
+
+    ///////////////// GETTER FUNCTIONS /////////////////
+
     @:functionCode('
         ULARGE_INTEGER freeBytesAvailableToCaller;
         ULARGE_INTEGER totalNumberOfBytes;
@@ -111,38 +105,29 @@ class Windows
             printf("oh no it failed, %d\\n", errorCode);
         }
     ')
-    public static function getCurrentDriveSize():Float {
+    private static function getCurrentDriveSize():Float {
         return 0;
     }
 
-    /**
-     * Return native process memory.
-     */
     @:functionCode('
         PROCESS_MEMORY_COUNTERS info;
         GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));
         return (size_t)info.WorkingSetSize;
     ')
-    public static function getCurrentUsedMemory():Float{
+    private static function getCurrentUsedMemory():Float{
         return 0.0;
     }
 
-    /**
-     * Returns current process CPU Usage.
-     */
     @:functionCode('
         return GetCPULoad();
     ')
-    public static function getCurrentCPUUsage():Float {
+    private static function getCurrentCPUUsage():Float {
         return 0.0;
     }
 
-    /**
-     * Creates a Windows Toast Notification.
-     * @param title Toast title.
-     * @param body Toast body / description.
-     * @param res Icon res
-     */
+
+    ///////////////// MISC FUNCTIONS /////////////////
+
     @:functionCode('
         NOTIFYICONDATA m_NID;
 
@@ -173,7 +158,7 @@ class Windows
 
         return Shell_NotifyIcon(NIM_MODIFY, &m_NID);
     ')
-    public static function toast(title:String = "", body:String = "", res:Int = 0)    // TODO: Linux (found out how to do it so ill do it soon)
+    private static function toast(title:String = "", body:String = "", res:Int = 0)    // TODO: Linux (found out how to do it so ill do it soon)
     {
         return res;
     }

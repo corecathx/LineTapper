@@ -1,5 +1,10 @@
 package states;
 
+import objects.tiles.TextTileEffect;
+import flixel.util.typeLimit.OneOfTwo;
+import lime.math.Vector2;
+import flixel.ui.FlxBar;
+import objects.Background;
 import game.backend.Lyrics;
 import flixel.effects.FlxFlicker;
 import flixel.tweens.FlxTween;
@@ -25,36 +30,54 @@ typedef Rating = {
 
 class PlayState extends StateBase
 {
+    //Instance of this playstate
 	public static var instance:PlayState;
 
-	public var songName:String = "Tutorial";
-    public var songEnded:Bool = false;
+    //Map Variables
+	public var mapName:String = "Tutorial";
+    public var mapStarted:Bool = false;
+    public var mapEnded:Bool = false;
     public var misses:Int = 0;
     public var hits:Int = 0;
-    public var ratings:Map<String, Rating>;
+    public var combo:Int = 0;
+    public var ratings:Map<TileRating, Rating>;
+    
+    //Misc variables
+	public var hasEndTransition:Bool = true;
 
-	public var linemap:LineMap;
-	public var speedRate:Float = 1;
-    public var hasEndTransition:Bool = true;
-
+    //Hud objects
 	public var scoreBoard:FlxText;
 	public var lyrics:Lyrics;
 	public var lyricText:FlxText;
-	public var combo:Int = 0;
+    public var timeBar:FlxBar;
+	public var timeTextLeft:FlxText;
+	public var timeTextRight:FlxText;
+	
+    //Gameplay modifiers (will be revamped)
+    public var using_autoplay:Bool = false;
 
-	public var camFollow:FlxObject;
-
+    //Linemap stuff
+    public var linemap:LineMap;
+	public var speedRate:Float = 1;
+    public var legacyMode:Bool = false;
+	
+    // Linemap objects
+    public var tile_group:FlxTypedGroup<ArrowTile>;
+    public var scripts:ScriptGroup;
+    public var playerTxt:TextTileEffect;
 	public var player:Player;
-	public var tile_group:FlxTypedGroup<ArrowTile>;
 
-	public var scripts:ScriptGroup;
-
+    //Background objects
 	public var bg_gradient:FlxSprite;
-	public var bg:FlxBackdrop;
+	public var backdrop:FlxBackdrop;
+    public var gameBG:Background;
+    public var bgAsset:String;
+    public var hasCustomBG:Bool = false;
 
+    // Camera stuff
 	public var gameCamera:FlxCamera;
 	public var hudCamera:FlxCamera;
-	public var using_autoplay:Bool = false;
+	public var camFollow:FlxObject;
 
 	/**
 	 * Prepares `PlayState` to load and play `song` file.
@@ -63,7 +86,7 @@ class PlayState extends StateBase
 	public function new(?song:String)
 	{
 		if (song != null)
-			songName = song;
+			mapName = song;
 		super();
 	}
 
@@ -71,18 +94,20 @@ class PlayState extends StateBase
 	{
 		instance = this;
 
-		scripts = new ScriptGroup('${Assets._MAP_PATH}/$songName/scripts/');
+        initSong();
+		scripts = new ScriptGroup('${Assets._MAP_PATH}/$mapName/scripts/');
 		scripts.executeFunc("create");
 
 		initCameras();
 		loadGameplay();
 		loadHUD();
 
-        ratings = new Map<String, Rating>();
+        ratings = new Map<TileRating, Rating>();
         ratings = [
-            'Perfect' => {count: 0, arrowTiles: []},
-            'Cool' => {count: 0, arrowTiles: []},
-            'Meh' => {count: 0, arrowTiles: []}
+            PERFECT => {count: 0, arrowTiles: []},
+            COOL => {count: 0, arrowTiles: []},
+            MEH => {count: 0, arrowTiles: []},
+            MISS => {count: 0, arrowTiles: []},
         ];
         
 		loadSong();
@@ -99,34 +124,64 @@ class PlayState extends StateBase
         scripts.executeFunc("destroy");
     }
 
-    function endSong()
+    public function endSong(?targetState:FlxState)
     {
+        #if cpp
+        if (linemap.version == ALPHA1){
+            if (hasCustomBG && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
+                gameBG.stopVideo();
+        }
+        #end
+        if (targetState == null)
+            targetState = new MenuState();
+        tile_group.forEachAlive((tile:ArrowTile) ->
+		{
+            if (tile != null)
+                tile.visible = false;
+            if (tile.squareTileEffect != null)
+                tile.squareTileEffect.visible = false;
+		});
+        FlxG.camera.follow(new FlxObject(player.getMidpoint().x, player.getMidpoint().y, 1, 1), LOCKON);
+        FlxG.sound.music.fadeOut(0.5,0, function(t){
+            FlxG.sound.music.stop();
+            FlxG.sound.music.destroy();
+            FlxG.sound.music = null;
+        });
+        mapEnded = true;
+        Conductor.instance.time = 0;
+        Conductor.instance.current_beats = 0;
+        Conductor.instance.current_steps = 0;
         if (hasEndTransition){
             FlxTween.tween(bg_gradient, {alpha: 0}, 1);
             FlxTween.tween(scoreBoard, {alpha: 0}, 1);
-            FlxTween.tween(bg, {alpha: 0}, 1);
+            FlxTween.tween(backdrop, {alpha: 0}, 1);
+            FlxTween.tween(timeBar, {alpha: 0}, 1);
+            FlxTween.tween(timeTextLeft, {alpha: 0}, 1);
+            FlxTween.tween(timeTextRight, {alpha: 0}, 1);
             new FlxTimer().start(1, function(tmr:FlxTimer)
             {
                 FlxFlicker.flicker(player, 0.5, 0.02, true);
             });
             new FlxTimer().start(1.5, function(tmr:FlxTimer)
             {
-                FlxG.switchState(new MenuState());
-		        Conductor.instance.onBeatTick.remove(beatTick);
+                exitToState(targetState);
             });
         }else{
-            FlxG.switchState(new MenuState());
-		    Conductor.instance.onBeatTick.remove(beatTick);
+            exitToState(targetState);
         }
     }
 
-	function loadSong()
-	{
-		var mapAsset:MapAsset = Assets.map(songName);
+    public function exitToState(target:FlxState)
+    {
+        Conductor.instance.onBeatTick.remove(beatTick);
+        FlxG.switchState(target);
+    }
+
+    public function initSong() {
+        var mapAsset:MapAsset = Assets.map(mapName);
 		lyrics = mapAsset.lyrics == null ? new Lyrics() : mapAsset.lyrics;
 		FlxG.sound.playMusic(mapAsset.audio, 1, false);
 		FlxG.sound.music.onComplete = ()->{
-            songEnded = true;
 			endSong();
 		}
 		FlxG.sound.music.time = 0;
@@ -134,7 +189,15 @@ class PlayState extends StateBase
 		FlxG.sound.music.pause();
 
 		linemap = mapAsset.map;
+        linemap.version;
 
+        if (linemap.version == LEGACY){
+            legacyMode = true;
+        }
+    }
+
+	public function loadSong()
+	{
 		var current_direction:PlayerDirection = PlayerDirection.DOWN;
 		var tileData:Array<Int> = [0, 0]; // Current Tile, rounded from 50px, 0,0 is the first tile.
 		var curStep:Int = 0;
@@ -165,8 +228,8 @@ class PlayState extends StateBase
 			var posX = tileData[0] * 50;
 			var posY = tileData[1] * 50;
 
-			var _theme:Theme = linemap.theme == null ? {bg:"" ,tileColorData: Utils.DEFAULT_TILE_COLOR_DATA} : linemap.theme;
-			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData);
+			var _theme:MapTheme = linemap.theme;
+			var arrowTile = new ArrowTile(posX, posY, direction, curStep, _theme.tileColorData, this);
 			tile_group.add(arrowTile);
 
 			current_direction = direction;
@@ -178,7 +241,7 @@ class PlayState extends StateBase
 		// trace("Tile group length: " + tile_group.length);
 	}
 
-	function initCameras()
+	public function initCameras()
 	{
 		gameCamera = new FlxCamera();
 		FlxG.cameras.reset(gameCamera);
@@ -188,65 +251,91 @@ class PlayState extends StateBase
 		FlxG.cameras.add(hudCamera, false);
 	}
 
-	function loadHUD()
-	{
-		scoreBoard = new FlxText(20, 20, -1, "", 20);
-		scoreBoard.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
-		add(scoreBoard);
-		scoreBoard.cameras = [hudCamera];
 
-		lyricText = new FlxText(20, 20, -1, "", 16);
-		lyricText.setFormat(Assets.font("extenro"), 14, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
-		add(lyricText);
-		lyricText.cameras = [hudCamera];
+    ///////////////// HUD FUNCTIONS /////////////////
+
+    /**
+	 * Updates the Heads Up Display.
+	 */
+     public function updateHUD(elapsed:Float) {
+        if (!mapEnded){
+		    if (FlxG.sound.music != null && FlxG.sound.music.playing){
+                Conductor.instance.time = FlxG.sound.music.time;
+		    	scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
+		    } else {
+		    	scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD / Arrow Keys";
+		    }
+		    scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 24));
+		    scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
+		    scoreBoard.screenCenter(X);
+        
+		    lyricText.text = lyrics.getLyric(Conductor.instance.time);
+		    lyricText.setPosition(0,FlxG.height - (scoreBoard.height + 80));
+		    lyricText.screenCenter(X);
+        
+		    timeBar.percent = (Conductor.instance.time / FlxG.sound.music.length)*100;
+		    timeTextLeft.text = Common.formatMS(Conductor.instance.time);
+		    timeTextRight.text =  Common.formatMS(FlxG.sound.music.length);
+		    timeTextRight.x = FlxG.width - (timeTextRight.width+10);
+        }
 	}
 
-	function loadGameplay()
+	public function loadHUD()
 	{
-		bg_gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.BLUE], 1, 90, true);
-		bg_gradient.scale.set(1, 1);
-		bg_gradient.scrollFactor.set();
-		bg_gradient.alpha = 0.1;
-		add(bg_gradient);
-
-		bg = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
-		bg.alpha = 0;
-		add(bg);
-
-		tile_group = new FlxTypedGroup<ArrowTile>();
-		add(tile_group);
-
-		player = new Player(0, 0);
-		add(player);
-	}
-
-
-	public var hitStatus:String = "";
-	override public function update(elapsed:Float)
-	{
-		scripts.executeFunc("update", [elapsed]);
-		if (FlxG.sound.music != null && FlxG.sound.music.playing){
-			Conductor.instance.time = FlxG.sound.music.time;
-            // my ass is NOT using 60% of my brain power to wrap my mind around this.. rewriting this later.
-			scoreBoard.text = (using_autoplay ? "Autoplay Mode\n" + "Combo: " + combo + "x" : "" + hitStatus + "\nCombo: " + combo + "x");
-		} else {
-			scoreBoard.text = "[ PRESS SPACE TO START ]\nControls: WASD or Arrow Keys";
+		inline function makeText(nX:Float,nY:Float,label:String, size:Int, ?bold:Bool = false, ?align:FlxTextAlign):FlxText {
+			var obj:FlxText = new FlxText(nX, nY, -1, label);
+			obj.setFormat(Assets.font("extenro"+(bold?"-bold":"")), size, FlxColor.WHITE, align, OUTLINE, FlxColor.BLACK);
+			obj.cameras = [hudCamera];
+			obj.active = false;
+			return obj;
 		}
-		scoreBoard.scale.y = scoreBoard.scale.x = FlxMath.lerp(1, scoreBoard.scale.x, 1 - (elapsed * 24));
-		scoreBoard.setPosition(20 + (scoreBoard.width - scoreBoard.frameWidth), FlxG.height - (scoreBoard.height + 20));
-		scoreBoard.screenCenter(X);
+		// HUD Text Objects. //
+		scoreBoard = makeText(20, 20, "", 14, true, CENTER);
+		add(scoreBoard);
 
-		lyricText.text = lyrics.getLyric(Conductor.instance.time);
-		lyricText.setPosition(0,FlxG.height - (scoreBoard.height + 80));
-		lyricText.screenCenter(X);
+		lyricText = makeText(20, 20, "", 14, false, CENTER);
+		add(lyricText);
 
+		// Time Bar Objects. //
+		timeBar = new FlxBar(0,0,LEFT_TO_RIGHT, FlxG.width,5,null,"",0,1,false);
+		timeBar.numDivisions = 2000; // uhhh
+		timeBar.createFilledBar(0x00000000, 0xFFFFFFFF);
+		timeBar.cameras = [hudCamera];
+		add(timeBar);
+		
+		var startY:Float = timeBar.y + timeBar.height + 5;
+
+		timeTextLeft = makeText(10, startY, "", 12, false, LEFT);
+		add(timeTextLeft);
+
+		timeTextRight = makeText(FlxG.width, startY, "", 12, false, LEFT);
+		timeTextRight.x -= timeTextRight.width;
+		add(timeTextRight);
+	}
+
+    ///////////////// GAMEPLAY FUNCTIONS /////////////////
+
+
+    /**
+	 * Updates the gameplay, such as camera, controls, and tile update.
+	 */
+     public function updateGameplay(elapsed:Float) {
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, 1 - (elapsed * 12));
 
 		camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
 		camFollow.y = FlxMath.lerp(player.getMidpoint().y, camFollow.y, 1 - (elapsed * 12));
 
-		if (FlxG.keys.justPressed.SPACE)
+        if (linemap.theme.bgData.bgType == 'VIDEO')
+            gameBG.time = Conductor.instance.time;
+		if (FlxG.keys.justPressed.SPACE && !mapStarted)
 		{
+            mapStarted = true;
+            #if cpp
+            if (linemap.version == ALPHA1){
+                if (hasCustomBG && Background.typeFromString(linemap.theme.bgData.bgType) == VIDEO)
+                    gameBG.playVideo();
+            }
+            #end
 			FlxG.sound.music.play();
 			player.setPosition();
 			player.started = true;
@@ -260,13 +349,13 @@ class PlayState extends StateBase
 			using_autoplay = !using_autoplay;
 		}
 
-		if (FlxG.sound.music != null)
+		if (FlxG.sound.music != null && !mapEnded)
 		{
 			if (using_autoplay)
 			{
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-					if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.already_hit)
+					if (Conductor.instance.current_steps > tile.step - 1 && !tile.hit)
 						onTileHit(tile);
 				});
 			} else {
@@ -274,48 +363,132 @@ class PlayState extends StateBase
 
 				tile_group.forEachAlive((tile:ArrowTile) ->
 				{
-                    if (Conductor.instance.current_steps > tile.tile.step - 1 && !tile.tile.checked){
-                        tile.tile.checked = true;
-						player.onHitPropertyChange(tile.tile, 0, false);
+                    if (Conductor.instance.current_steps > tile.step - 1 && !tile.checked){
+                        tile.checked = true;
+						updatePlayerPosition(tile);
                     }
 				});
-
-				FlxG.watch.addQuick("Player Current Step: ", player.currentStep);
-				FlxG.watch.addQuick("Player Current Direction: ", player.direction);
-				FlxG.watch.addQuick("Player Next Step: ", player.nextStep);
-				FlxG.watch.addQuick("Player Next Direction: ", player.nextDirection);
 			}
 		}
-		super.update(elapsed);
+	}
+
+	public function loadGameplay()
+	{
+		bg_gradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [FlxColor.BLACK, FlxColor.BLUE], 1, 90, true);
+		bg_gradient.scale.set(1, 1);
+		bg_gradient.scrollFactor.set();
+		bg_gradient.alpha = 0.1;
+		add(bg_gradient);
+
+		backdrop = new FlxBackdrop(FlxGridOverlay.createGrid(50, 50, 100, 100, true, 0xFF000F30, 0xFF002763), XY);
+		backdrop.alpha = 0;
+		add(backdrop);
+
+        if (!legacyMode){
+            if (linemap.version == ALPHA1){
+                var bgType = Background.typeFromString(linemap.theme.bgData.bgType);
+                if (bgType != NONE){
+                    hasCustomBG = true;
+                    bg_gradient.visible = false;
+                    backdrop.visible = false;
+                
+                    #if !cpp
+                        if (bgType == VIDEO){
+                            trace("This build isn't compiled to cpp, Video Backgrounds are not supported!");
+                            bg_gradient.visible = true;
+                            backdrop.visible = true;
+                            hasCustomBG = false;
+                        }
+                    #else
+                        gameBG = new Background(bgType, 'assets/data/maps/$mapName/mapAssets/${linemap.theme.bgData.bg}${bgType == IMAGE ? '.png' : bgType == VIDEO ? '.mp4' : '.png'}', linemap.theme.bgData.scaleX, linemap.theme.bgData.scaleY, linemap.theme.bgData.alpha);
+                        gameBG.setVideoTime = true;
+                        add(gameBG);
+                    #end
+                }
+            }
+        }
+
+		tile_group = new FlxTypedGroup<ArrowTile>();
+		add(tile_group);
+
+		player = new Player(0, 0);
+		add(player);
+
+        playerTxt = new TextTileEffect(player.x, player.y - 100, 0, '');
+        playerTxt.target = player;
+        playerTxt.yOffset = -50;
+        playerTxt.xOffset = -40;
+        playerTxt.setFormat(Assets.font("extenro-bold"), 15, FlxColor.CYAN, CENTER, OUTLINE, FlxColor.WHITE);
+        playerTxt.borderSize = 0.5;
+        playerTxt.updateHitbox();
+        add(playerTxt);
+	}
+
+
+	public var hitStatus:String = "";
+	override public function update(elapsed:Float)
+	{
+        super.update(elapsed);
+        scripts.executeFunc("update", [elapsed]);
+		updateHUD(elapsed);
+        updateGameplay(elapsed);
 		scripts.executeFunc("postUpdate", [elapsed]);
 	}
 
-	public function onTileHit(tile:ArrowTile, ?ratingName:String = 'Perfect')
-	{
-        if (tile.tile != null && tile.squareTileEffect != null){
+    public function onTileMiss(tile:ArrowTile)
+    {
+        if (tile != null && tile.squareTileEffect != null){
+            scripts.executeFunc("onTileMiss", [tile]);
+			hitStatus = "Missed!";
+            tile.onTileMiss();
+            scoreBoard.scale.x -= 0.3;
+            misses++;
+            combo = 0;
+            var rating = ratings.get(MISS);
+            rating.count++;
+            rating.arrowTiles.push(tile);
+            scripts.executeFunc("postTileMiss", [tile]);
+        }
+    }
+
+    public function flickerTextOnPlayer(text:String, color:FlxColor, length:Float){
+        var splitLength:Float = length/2;
+        playerTxt.visible = true;
+        playerTxt.text = text;
+        playerTxt.color = color;
+        new FlxTimer().start(splitLength, function(t){
+            FlxFlicker.flicker(playerTxt, splitLength, 0.02, false, true);
+        });
+    }
+
+	public function onTileHit(tile:ArrowTile, ?ratingName:TileRating = PERFECT)
+    {
+        if (tile != null && tile.squareTileEffect != null){
+            hitStatus = ArrowTile.tileRatingToString(ratingName);
             scripts.executeFunc("onTileHit", [tile]);
             FlxG.sound.play(Assets.sound("hit_sound"), 0.7);
             tile.onTileHit();
-		    tile.tile.already_hit = true;
             if (using_autoplay)
-		        updatePlayerPosition(tile);
-		    combo++;
-		    scoreBoard.scale.x += 0.3;
-		    FlxG.camera.zoom += 0.05;
+                updatePlayerPosition(tile);
+            combo++;
+            scoreBoard.scale.x += 0.3;
+            FlxG.camera.zoom += 0.05;
             var rating = ratings.get(ratingName);
             rating.count++;
             rating.arrowTiles.push(tile);
             scripts.executeFunc("postTileHit", [tile]);
         }
-	}
+    }
 
     public function updatePlayerPosition(tile:ArrowTile){
-        player.direction = tile.tile.direction;
-		player.setPosition(tile.tile.x, tile.tile.y);
+        player.direction = tile.direction;
+		player.setPosition(tile.x, tile.y);
     }
 
 	public function beatTick() {
 		if (player != null)
 			player.scale.x = player.scale.y += 0.3;
+        if (mapStarted && linemap.theme.bgData.bgType == 'VIDEO' && Conductor.instance.current_beats % 34 == 0)
+            gameBG.updateVideo();
 	}
 }

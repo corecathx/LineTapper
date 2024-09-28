@@ -15,12 +15,13 @@ class IntroState extends FlxState {
 	var playerBox:FlxSprite;
 	var tileBox:FlxSprite;
 	var ltText:FlxText;
-
+    
+    var playing:Bool = false;
     var currentlyLoading:Bool = false;
 
 	override function create():Void
 	{
-        Utils.initialize();
+        Common.initialize();
         haxe.Timer.measure(()->{
             loadIntro();
             animateIntro();
@@ -114,11 +115,19 @@ class IntroState extends FlxState {
 
         if (_rotateTime > 3) {
             playerBox.angle = 0;
-            FlxTween.tween(ltText, {alpha:0}, 0.5, {ease:FlxEase.linear, onComplete:(_)->{
+            if (!playing){
+                playing = true;
+                FlxG.sound.playMusic(Assets.music('menu_music'));
+            }
+            FlxTween.tween(ltText, {alpha:0}, 2, {ease:FlxEase.circIn, onComplete:(_)->{
                 ltText.destroy();
                 remove(ltText);
-                FlxG.switchState(new MenuState());
             }});
+            new FlxTimer().start(5.5, function(_){
+                ltText.destroy();
+                remove(ltText);
+                FlxG.switchState(new MenuState(true));
+            });
         } else {
             _rotateTime += elapsed;
             playerBox.angle = FlxEase.expoInOut(_rotateTime%1)*(-90);

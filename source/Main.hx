@@ -1,7 +1,7 @@
 package;
 
+import game.backend.utils.NativeUtil;
 import lime.app.Application;
-import game.native.NativeUtil;
 import flixel.FlxGame;
 import game.Conductor;
 import openfl.display.Sprite;
@@ -20,6 +20,7 @@ class Main extends Sprite
 		addChild(new FlxGame(0, 0, STARTING_STATE, 120,120,true,false));
 		//addChild(new objects.SystemInfo(10,10,0xFFFFFF,false));
 		FlxG.fixedTimestep = FlxG.autoPause = false;
+        FlxSprite.defaultAntialiasing = true;
 
 		NativeUtil.setWindowDarkMode(Application.current.window.title, true);
 	}

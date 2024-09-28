@@ -8,7 +8,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 
 import game.Assets;
-import game.Utils;
+import game.backend.utils.Common;
 import game.backend.StateBase;
 
 using StringTools;

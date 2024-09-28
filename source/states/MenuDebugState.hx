@@ -22,6 +22,10 @@ class MenuDebugState extends FlxState {
         return song = val;
     }
     override function create() {
+        FlxG.sound.music.fadeOut(1, 0, function(t){
+            FlxG.sound.music.stop();
+        });
+        
         topText = new FlxText(20, 180, -1, "START TYPING YOUR SONG'S NAME", 20);
 		topText.setFormat(Assets.font("extenro-extrabold"), 22, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		topText.screenCenter(X);
@@ -55,9 +59,23 @@ class MenuDebugState extends FlxState {
     var keyTime:Float = 0;
     function handleKeyInput(elapsed:Float) {
         if (FlxG.keys.justPressed.ENTER) {
-            if (FileSystem.exists('${Assets._MAP_PATH}/$song')){
-                FlxG.switchState(new PlayState(song.trim()));
-                FlxG.sound.play(Assets.sound("menu/key_press"));
+            if (song.length > 0){
+                if (FileSystem.exists('${Assets._MAP_PATH}/$song')){
+                    FlxG.switchState(new PlayState(song.trim().toLowerCase()));
+                    FlxG.sound.play(Assets.sound("menu/key_press"));
+                }else{
+                    FlxFlicker.flicker(inputText, 1, 0.02, true);
+                    inputText.color = FlxColor.RED;
+                    set_song('INVALID');
+                    noType = true;
+                    new FlxTimer().start(1, function(tmr:FlxTimer)
+                    {
+                        noType = false;
+                        inputText.color = FlxColor.WHITE;
+                        set_song('TUTORIAL');
+                    });
+                    
+                }
             }else{
                 FlxFlicker.flicker(inputText, 1, 0.02, true);
                 inputText.color = FlxColor.RED;

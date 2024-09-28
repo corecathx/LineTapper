@@ -46,7 +46,7 @@ class Profile extends FlxSprite {
         return; // Will be removed later.
         // Loads the profile image
         trace("Preparing");
-        var img:URLLoader = new URLLoader(new URLRequest(Utils.PLAYER.profile_url));
+        var img:URLLoader = new URLLoader(new URLRequest(Common.PLAYER.profile_url));
         img.dataFormat = BINARY;
         img.addEventListener(Event.COMPLETE, (e:Event) -> {
             var temp:FlxSprite = new FlxSprite().loadGraphic(BitmapData.fromBytes(cast(img.data, ByteArray)));
@@ -56,13 +56,13 @@ class Profile extends FlxSprite {
             setGraphicSize(size.width,size.height);
             updateHitbox();
 
-            _txt_displayName = new FlxText(0,0,-1,Utils.PLAYER.display,30);
+            _txt_displayName = new FlxText(0,0,-1,Common.PLAYER.display,30);
             _txt_displayName.setFormat(Assets.font("extenro-bold"), 14, FlxColor.WHITE);
             _txt_indicator = new FlxText(0,0,-1,"OFFLINE",30);
             _txt_indicator.setFormat(Assets.font("extenro-bold"), 8, FlxColor.GRAY);
             ready = true;
         });
-        img.load(new URLRequest(Utils.PLAYER.profile_url));
+        img.load(new URLRequest(Common.PLAYER.profile_url));
 
         _parent_effect = new FlxSkewedSprite();
         _parent_effect = cast _parent_effect.makeGraphic(15,size.height);

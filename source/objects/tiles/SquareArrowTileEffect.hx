@@ -10,13 +10,13 @@ import flixel.tweens.FlxTween;
  * The square indicating when to hit an ArrowTile, a component of the ArrowTile group.
  */
 class SquareArrowTileEffect extends Shape {
-    public var tile:ArrowTileSpr;
+    public var tile:ArrowTile;
     public var targetStepDist:Float = 5;
     public var stepDistSecs:Float = 0;
     var step_sec:Float = 0;
     var called:Bool = false;
     var stepDist:Float = 0;
-    public function new(x:Float, y:Float, tile:ArrowTileSpr, ?targetStepDist:Float = 5) {
+    public function new(x:Float, y:Float, tile:ArrowTile, ?targetStepDist:Float = 5) {
 		super(x, y);
         this.tile = tile;
         this.targetStepDist = targetStepDist;
@@ -30,7 +30,7 @@ class SquareArrowTileEffect extends Shape {
 
         //Initialize variables
         step_sec = Conductor.instance.step_ms / 1000;
-        stepDistSecs = step_sec * (this.targetStepDist + 1);
+        stepDistSecs = step_sec * targetStepDist;
     }
 
     public function runHitAnimation()

@@ -27,7 +27,7 @@ class ScriptGroup {
             var current_path:String = path + "/" + file;
             if (FileSystem.isDirectory(current_path)) 
                 continue;
-            if (Utils.checkHXS(current_path)) {
+            if (Common.checkHXS(current_path)) {
                 var script:Script = new Script(current_path);
                 instances.push(script);
             }

@@ -25,6 +25,7 @@ class Assets
 
 	inline public static var _IMAGE_PATH:String = '$_ASSET_PATH/images';
 	inline public static var _SOUND_PATH:String = '$_ASSET_PATH/sounds';
+    inline public static var _MUSIC_PATH:String = '$_ASSET_PATH/music';
 
 	/** Trackers for loaded assets. **/
 	public static var loaded_images:Map<String, Bool> = new Map();
@@ -138,6 +139,14 @@ class Assets
 	 */
 	inline public static function sound(name:String):Sound
 		return _sound_file('$_SOUND_PATH/$name.ogg');
+
+    /**
+	 * Returns a sound file in the music folder
+	 * @param path Music's file name (without extension)
+	 * @return Sound
+	 */
+	inline public static function music(name:String):Sound
+		return _sound_file('$_MUSIC_PATH/$name.ogg');
 
 	/**
 	 * [INTERNAL] Loads a sound file

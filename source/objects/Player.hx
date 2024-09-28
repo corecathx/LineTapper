@@ -1,7 +1,6 @@
 package objects;
 
 import objects.tiles.ArrowTile;
-import objects.tiles.ArrowTileSpr;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
 import flixel.input.keyboard.FlxKey;
@@ -43,7 +42,7 @@ class Player extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		updateProperties();
-        if (!PlayState.instance.songEnded)
+        if (!PlayState.instance.mapEnded)
 		    updateMovement(elapsed);
 
 		handleTrails(elapsed);
@@ -123,15 +122,15 @@ class Player extends FlxSprite {
 			pressArray[index] = pressed;
 		}
 
-		var nextTile:ArrowTileSpr = null;
+		var nextTile:ArrowTile = null;
 		tile_group.forEachAlive((tile:ArrowTile) -> {
-			if (tile == null || tile.tile.already_hit || tile.tile.missed)
+			if (tile == null || tile.hit || tile.missed)
 				return;
 
 			if (nextTile == null)
-				nextTile = tile.tile;
-			else if (tile.tile.step > currentStep && tile.tile.step < nextTile.step)
-				nextTile = tile.tile;
+				nextTile = tile;
+			else if (tile.step > currentStep && tile.step < nextTile.step)
+				nextTile = tile;
 		});
 
 		if (nextTile != null) {
@@ -147,21 +146,16 @@ class Player extends FlxSprite {
 			var tOffset:Float = timeDiff * (BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate;
 
 			if (hitable) {
-				if (pressArray[cast nextTile.direction] && !nextTile.already_hit) {
-					PlayState.instance.hitStatus = "PERFECT!!";
-					PlayState.instance.onTileHit(nextTile.group);
+				if (pressArray[cast nextTile.direction] && !nextTile.hit) {
+					PlayState.instance.onTileHit(nextTile);
 				}
 			} else if (!nextTile.missed && tileTime < Conductor.instance.time - (Conductor.instance.safe_zone_offset * 0.4)) {
-                PlayState.instance.misses++;
-				PlayState.instance.hitStatus = "MISSED!";
-				PlayState.instance.combo = 0;
-                nextTile.group.onTileMiss();
-				nextTile.missed = true;
+				PlayState.instance.onTileMiss(nextTile);
 			}
 		}
 	}
 
-	public function onHitPropertyChange(nextTile:ArrowTileSpr, offset:Float, applyOffset:Bool) {
+	public function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
 		var xPos:Float = nextTile.x;
 		var yPos:Float = nextTile.y;
 
