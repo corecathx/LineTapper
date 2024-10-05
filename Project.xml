@@ -42,15 +42,13 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
+    <haxelib name="hxvlc" />
 	<haxelib name="hscript" if="USING_SCRIPTS"/>
 
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
-
-	<!--Remove the legacy health system-->
-	<haxedef name="FLX_NO_HEALTH" />
 	
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
