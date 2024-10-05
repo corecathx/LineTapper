@@ -7,7 +7,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import game.Conductor;
 import objects.tiles.ArrowTile.MapTileColorData;
-import objects.Player.PlayerDirection;
+import objects.Player.Direction;
 
 /**
  * Arrow Tile colors from the map.
@@ -33,7 +33,6 @@ enum abstract TileRating(String) from String to String {
  class ArrowTile extends FlxSprite {
     public var verticalTextOffset:Int = 15;
     public var squareTileEffect:SquareArrowTileEffect;
-    public var drawables:Map<String, FlxObject>;
     public var playstate:PlayState;
 	/**
 	 * Value for the tile color data.
@@ -46,9 +45,9 @@ enum abstract TileRating(String) from String to String {
 	public var canUpdateColors:Bool = true;
 
 	/**
-	 * Arrow direction of this tile points at. (`PlayerDirection`)
+	 * Arrow direction of this tile points at. (`Direction`)
 	 */
-	public var direction:PlayerDirection = DOWN;
+	public var direction:Direction = DOWN;
 
 	/**
 	 * Variable to assist with miss handling.
@@ -70,6 +69,11 @@ enum abstract TileRating(String) from String to String {
 	 */
 	public var missed:Bool = false;
 
+    /**
+	 * Rating of this tile after gets hit.
+	 */
+	public var rating:TileRating = MISS;
+
 	/**
 	 * Creates a new ArrowTile object.
 	 * @param nX X Position
@@ -78,7 +82,7 @@ enum abstract TileRating(String) from String to String {
 	 * @param curStep This tile's Step time.
 	 * @param tileColorData Color Data for this ArrowTile.
 	 */
-	public function new(nX:Float, nY:Float, dir:PlayerDirection, curStep:Int, ?tileColorData:MapTileColorData, playstate:PlayState) {
+	public function new(nX:Float, nY:Float, dir:Direction, curStep:Int, ?tileColorData:MapTileColorData, playstate:PlayState) {
 		super(nX, nY);
 		step = curStep;
 		direction = dir;
@@ -104,7 +108,6 @@ enum abstract TileRating(String) from String to String {
 		}
 		alpha = 0;
 
-        drawables = new Map<String, FlxObject>();
         squareTileEffect = new SquareArrowTileEffect(nX, nY, this, 5);
         this.playstate.add(squareTileEffect);
 	}

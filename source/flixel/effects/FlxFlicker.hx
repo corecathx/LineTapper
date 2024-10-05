@@ -159,7 +159,9 @@ class FlxFlicker implements IFlxDestroyable
 	 */
 	function release():Void
 	{
-		_boundObjects.remove(object);
+        if (object != null)
+		    _boundObjects.remove(object);
+
 		_pool.put(this);
 	}
 

@@ -83,11 +83,11 @@ class Common {
             id: 1,
             username: "corecathx",
             display: "CoreCat",
-            profile_url: null
+            profile_url: 'https://cdn.discordapp.com/avatars/694791036094119996/08795150028fbab041c2cc9359bc5e43.png?size=1024' 
         }
     }
 
-     /**
+    /**
      * Get HH:MM:SS formatted time from miliseconds.
      * @param time The miliseconds to convert.
      * @return String
@@ -106,11 +106,11 @@ class Common {
         if (secs.length < 2)
             secs = '0' + secs;
 
-        var res:String = mins + ":" + secs;
+        var shit:String = mins + ":" + secs;
         if (hour != "0"){
             if (mins.length < 2) mins = "0"+ mins;
-            res = hour+":"+mins + ":" + secs;
+            shit = hour+":"+mins + ":" + secs;
         }
-        return res;
+        return shit;
     }
 }

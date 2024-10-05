@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.effects.FlxFlicker;
 
 import game.Assets;
 import game.backend.utils.Common;

@@ -1,7 +1,9 @@
 package game.backend.utils;
 
+#if cpp
 import game.native.NativeFunctions;
 import cpp.Int32;
+#end
 
 /**
  * Native helper class for Windows.
@@ -18,7 +20,11 @@ class NativeUtil {
      */
     public static function getUsedMemory():Float {
         #if windows
+        #if cpp
         return NativeFunctions.getCurrentUsedMemory();
+        #else
+        return openfl.system.System.totalMemory;
+        #end
         #else
         return openfl.system.System.totalMemory;
         #end
@@ -29,7 +35,11 @@ class NativeUtil {
      */
     public static function getCurrentDriveSize():Float {
         #if windows
+        #if cpp
         return NativeFunctions.getCurrentDriveSize();
+        #else
+        return 1.0;
+        #end
         #else
         return 1.0;
         #end
@@ -40,7 +50,11 @@ class NativeUtil {
      */
     public static function getCurrentCPUUsage():Float {
         #if windows
+        #if cpp
         return NativeFunctions.getCurrentCPUUsage();
+        #else
+        return 1.0;
+        #end
         #else
         return 1.0;
         #end
@@ -56,9 +70,12 @@ class NativeUtil {
      */
     public static function toast(title:String = "", body:String = "", res:Int = 0):Int
     {
-        
         #if windows
+        #if cpp
         return NativeFunctions.toast(title, body, res);
+        #else
+        return 1;
+        #end
         #else
         return 1;
         #end
@@ -69,9 +86,13 @@ class NativeUtil {
      * @param title Window title, do something like `lime.app.Application.current.window.title`.
      * @param targetColor This is a hex code that is in 0x00BBGGRR. Not RGB, but BGR.
      */
-    public static function setWindowColor(title:String, targetColor:Int32) {
+    public static function setWindowColor(title:String, #if cpp targetColor:Int32 #else targetColor:Int #end) {
         #if windows
+        #if cpp
         NativeFunctions.setWindowColor(title, targetColor);
+        #else
+        trace("This build isn't compiled to cpp!");
+        #end
         #else
         trace("Unsupported platform! The window bars color remains unchanged.");
         #end
@@ -84,7 +105,11 @@ class NativeUtil {
      */
     public static function setWindowDarkMode(title:String, enable:Bool) {
         #if windows
+        #if cpp
         NativeFunctions.setWindowDarkMode(title, enable);
+        #else
+        trace("This build isn't compiled to cpp!");
+        #end
         #else
         trace("Unsupported platform! Dark mode property remains unchanged.");
         #end
@@ -95,7 +120,11 @@ class NativeUtil {
 	 */
     public static function setDPIAware() {
         #if windows
+        #if cpp
         NativeFunctions.setDPIAware();
+        #else
+        trace("This build isn't compiled to cpp!");
+        #end
         #else
         trace("Unsupported platform! DPI Aware mode remains unchanged.");
         #end

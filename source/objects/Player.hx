@@ -9,7 +9,7 @@ import flixel.util.FlxColor;
 import game.Conductor;
 import states.PlayState;
 
-enum abstract PlayerDirection(Int) {
+enum abstract Direction(Int) {
 	var LEFT = 0;
 	var DOWN = 1;
 	var UP = 2;
@@ -18,10 +18,18 @@ enum abstract PlayerDirection(Int) {
 
 class Player extends FlxSprite {
 	public static var BOX_SIZE:Int = 50;
-	public var direction:PlayerDirection = DOWN;
-	public var nextDirection:PlayerDirection = DOWN;
+	public var direction:Direction = DOWN;
+	public var nextDirection:Direction = DOWN;
 
-	public var nextTileProgress:Float = 0;
+    /** A progress from previous tile to the next tile from 0 to 1. **/
+	public var tileProgress:Float = 0;
+
+	/** Defines next hittable tile. **/
+	public var nextTileData:{x:Float,y:Float,step:Float} = {x:0,y:0,step:0};
+
+	/** Defines last tile data. **/
+	public var lastTileData:{x:Float,y:Float,step:Float} = {x:0,y:0,step:0};
+
 
 	public var speed:Float = 1;
 	public var pixelMovement:Float = 5;
@@ -35,11 +43,27 @@ class Player extends FlxSprite {
 	public var trail_delay:Float = 0.05;
 	public var started:Bool = false;
 
+    /**
+     * Modify this X variable if you want the player to move smoothly.
+     */
+    public var targetX:Float = 0;
+    /**
+     * Modify this Y variable if you want the player to move smoothly.
+     */
+    public var targetY:Float = 0;
+    /**
+     * If you want to set the x and y values to interpolate with targetX and targetY, enable this. (enabled by default)
+     */
+    public var interpPosition:Bool = true;
+
 	public function new(nX:Float, nY:Float) {
 		super(nX, nY);
+        targetX = nX;
+        targetY = nY;
 		makeGraphic(BOX_SIZE, BOX_SIZE, 0xFFFFFFFF);
 	}
 
+    var oldInterpPosition:Null<Bool> = null;
 	override function update(elapsed:Float) {
 		updateProperties();
         if (!PlayState.instance.mapEnded)
@@ -47,6 +71,18 @@ class Player extends FlxSprite {
 
 		handleTrails(elapsed);
 		updateScale(elapsed);
+        if (oldInterpPosition != null){
+            if (interpPosition != oldInterpPosition)
+            {
+                targetX = x;
+                targetY = Y;
+            }
+        }
+        if (interpPosition){
+            x = FlxMath.lerp(x, targetX, 0.2);
+            y = FlxMath.lerp(y, targetY, 0.2);
+        }
+        oldInterpPosition = interpPosition;
 		super.update(elapsed);
 	}
 
@@ -153,57 +189,86 @@ class Player extends FlxSprite {
 				PlayState.instance.onTileMiss(nextTile);
 			}
 		}
+        _handleMovements(tile_group);
 	}
 
-	public function onHitPropertyChange(nextTile:ArrowTile, offset:Float, applyOffset:Bool) {
-		var xPos:Float = nextTile.x;
-		var yPos:Float = nextTile.y;
-
-		if (applyOffset) {
-			switch (nextTile.direction) {
-				case PlayerDirection.LEFT:
-					xPos += offset;
-				case PlayerDirection.DOWN:
-					yPos -= offset;
-				case PlayerDirection.UP:
-					yPos += offset;
-				case PlayerDirection.RIGHT:
-					xPos -= offset;
+    private function _handleMovements(tile_group:FlxTypedGroup<ArrowTile>) {
+		var nextTile:ArrowTile = null;
+		var lastTile:ArrowTile = null;
+	
+		for (tile in tile_group.members) {
+			if (tile == null || tile.hit || tile.missed)
+				continue;
+	
+			if (tile.step > currentStep) {
+				nextTile = tile;
+				break;
 			}
 		}
-
-		setPosition(xPos, yPos);
-		direction = nextTile.direction;
+	
+		for (tile in tile_group.members) {
+			if (tile == null)
+				continue;
+	
+			if (tile.step <= currentStep) 
+				lastTile = tile;
+		}
+	
+		if (nextTile != null)
+			nextTileData = {x:nextTile.x, y:nextTile.y, step:nextTile.step};
+		if (lastTile != null)
+			lastTileData = {x:lastTile.x, y:lastTile.y, step:lastTile.step};
 	}
 
 	private function updateMovement(elapsed:Float) {
 		if (!started)
 			return;
-		var addX:Float = 0;
-		var addY:Float = 0;
 
-		elapsed *= 1000;
-
-		var moveVel:Float = ((BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
-
-		switch (direction) {
-			case PlayerDirection.LEFT:
-				addX -= moveVel;
-			case PlayerDirection.DOWN:
-				addY += moveVel;
-			case PlayerDirection.UP:
-				addY -= moveVel;
-			case PlayerDirection.RIGHT:
-				addX += moveVel;
-		}
-
-		x += addX;
-		y += addY;
-
-		if (direction == PlayerDirection.LEFT || direction == PlayerDirection.RIGHT) {
-			y = Math.round(y / BOX_SIZE) * BOX_SIZE;
-		} else if (direction == PlayerDirection.UP || direction == PlayerDirection.DOWN) {
-			x = Math.round(x / BOX_SIZE) * BOX_SIZE;
+		var validCheck:Bool = nextTileData != null && lastTileData != null;
+		FlxG.watch.addQuick("Using new method?", validCheck);
+		FlxG.watch.addQuick("Tiles", (nextTileData) + " // " + (lastTileData));
+		if (validCheck) {
+			var targetTime:Float = nextTileData.step * Conductor.instance.step_ms;
+			var lastTime:Float = lastTileData.step * Conductor.instance.step_ms;
+			var curTime:Float = Conductor.instance.time;
+		
+			FlxG.watch.addQuick("Times", targetTime + " // " + lastTime);
+		
+			if (targetTime != lastTime) {
+				tileProgress = (curTime - lastTime) / (targetTime - lastTime);
+		
+				targetX = lastTileData.x + (nextTileData.x - lastTileData.x) * tileProgress;
+				targetY = lastTileData.y + (nextTileData.y - lastTileData.y) * tileProgress;
+		
+				FlxG.watch.addQuick("Player Progress", tileProgress);
+			}
+		} else { // Use legacy method of movement
+			var addX:Float = 0;
+			var addY:Float = 0;
+	
+			elapsed *= 1000;
+	
+			var moveVel:Float = ((BOX_SIZE / Conductor.instance.step_ms) * states.PlayState.instance.speedRate) * elapsed;
+	
+			switch (direction) {
+				case Direction.LEFT:
+					addX -= moveVel;
+				case Direction.DOWN:
+					addY += moveVel;
+				case Direction.UP:
+					addY -= moveVel;
+				case Direction.RIGHT:
+					addX += moveVel;
+			}
+	
+			targetX += addX;
+			targetY += addY;
+	
+			if (direction == Direction.LEFT || direction == Direction.RIGHT) {
+				targetY = Math.round(targetY / BOX_SIZE) * BOX_SIZE;
+			} else if (direction == Direction.UP || direction == Direction.DOWN) {
+				targetX = Math.round(targetX / BOX_SIZE) * BOX_SIZE;
+			}
 		}
 	}
 }

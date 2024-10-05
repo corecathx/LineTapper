@@ -1,6 +1,8 @@
 package game.native;
 
+#if cpp
 import cpp.Int32;
+#end
 
 /**
  * Native Windows Functions.
@@ -8,6 +10,8 @@ import cpp.Int32;
  * To use the functions, use NativeUtil.
  * - ZSolarDev :|
  */
+
+#if cpp
 @:buildXml('
 <target id="haxe">
   <lib name="dwmapi.lib" if="windows" />
@@ -163,3 +167,4 @@ class NativeFunctions
         return res;
     }
 }
+#end

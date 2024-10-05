@@ -1,8 +1,9 @@
 package states;
 
+import flixel.input.FlxInput;
 import sys.FileSystem;
 import flixel.util.FlxTimer;
-import flixel.effects.FlxFlicker;
+
 import lime.app.Application;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
@@ -14,6 +15,7 @@ class MenuDebugState extends FlxState {
     var inputText:FlxText;
     var noType:Bool = false;
     var inputCaret:FlxSprite;
+    var lastInvalidSong:String = "";
     var song(default,set):String = "Tutorial";
     function set_song(val:String):String {
         if (inputText != null)
@@ -91,29 +93,32 @@ class MenuDebugState extends FlxState {
             }
         } else if (FlxG.keys.firstPressed() != FlxKey.NONE && FlxG.keys.firstPressed() != FlxKey.SHIFT && !noType) {
             if (keyTime == 0 || keyTime > 0.3) {
-                if (keyTime > 0.3) keyTime = 0.2;
-                var keyPressed:FlxKey = FlxG.keys.firstPressed();
-                switch (keyPressed) {
-                    case FlxKey.BACKSPACE:
-                        FlxG.sound.play(Assets.sound("menu/key_cancel"));
-                        song = song.substring(0,song.length-1);
-                    case FlxKey.SPACE:
-                        FlxG.sound.play(Assets.sound("menu/key_press"));
-                        song += " ";
-                    default:
-                        var keyName:String = Std.string(keyPressed);
-                        if (allowedKeys.contains(keyName)) {
+                if (keyTime > 0.3) keyTime = 0.25;
+                var keyPressed:Array<FlxInput<FlxKey>> = FlxG.keys.getIsDown();
+                for (i in keyPressed) {
+                    var key:FlxKey = i.ID;
+                    switch (key) {
+                        case FlxKey.BACKSPACE:
+                            FlxG.sound.play(Assets.sound("menu/key_cancel"));
+                            song = song.substring(0, song.length - 1);
+                        case FlxKey.SPACE:
                             FlxG.sound.play(Assets.sound("menu/key_press"));
-                            if (!FlxG.keys.pressed.SHIFT) 
-                                keyName = keyName.toLowerCase();
-                            song += keyName;
-                            if(song.length >= 25) song = song.substring(1);
-                        }
+                            song += " ";
+                        default:
+                            var keyName:String = Std.string(key);
+                            if (allowedKeys.contains(keyName)) {
+                                FlxG.sound.play(Assets.sound("menu/key_press"));
+                                keyName = FlxG.keys.pressed.SHIFT ? keyName.toUpperCase() : keyName.toLowerCase();
+                                song += keyName;
+                                if (song.length >= 25) song = song.substring(1);
+                            }
+                    }
                 }
             }
-            keyTime+=elapsed;
+            keyTime += elapsed;
         } else {
             keyTime = 0;
         }
     }
+    
 }

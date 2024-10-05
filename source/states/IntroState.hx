@@ -118,16 +118,14 @@ class IntroState extends FlxState {
             if (!playing){
                 playing = true;
                 FlxG.sound.playMusic(Assets.music('menu_music'));
+                FlxTween.tween(ltText, {alpha:0}, 2, {ease:FlxEase.circIn, onComplete:(_)->{
+                    ltText.destroy();
+                    remove(ltText);
+                }});
+                new FlxTimer().start(5.5, function(_){
+                    FlxG.switchState(new MenuState(true));
+                });
             }
-            FlxTween.tween(ltText, {alpha:0}, 2, {ease:FlxEase.circIn, onComplete:(_)->{
-                ltText.destroy();
-                remove(ltText);
-            }});
-            new FlxTimer().start(5.5, function(_){
-                ltText.destroy();
-                remove(ltText);
-                FlxG.switchState(new MenuState(true));
-            });
         } else {
             _rotateTime += elapsed;
             playerBox.angle = FlxEase.expoInOut(_rotateTime%1)*(-90);
@@ -149,7 +147,8 @@ class IntroState extends FlxState {
         _curFlickTime += elapsed;
         _curFlickPos += elapsed;
         if (_curFlickTime > _flickerDelay){
-            ltText.alpha = 1 - ltText.alpha;
+            if (_rotateTime < 3)
+                ltText.alpha = 1 - ltText.alpha;
             _curFlickTime = 0;
         }
 
