@@ -34,7 +34,7 @@ class MenuState extends StateBase {
 	var options(get, never):Array<Dynamic>;
 	function get_options():Array<Dynamic>{
 		return [
-			["options", () -> trace("wawer")],
+			["options", () -> Utils.switchState(new MenuState(), "Main Menu")],
 			["play", () -> Utils.switchState(new MenuDebugState(), "Song Select")],
 			["edit", () -> Utils.switchState(new LevelEditorState(), "Level Editor")]
 		];	
