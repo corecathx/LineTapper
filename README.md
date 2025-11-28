@@ -47,3 +47,4 @@ While I was doing this, something came to my mind: "Hey, what if the player were
 |------------------------------------------|----------------------------|
 [CoreCat](https://github.com/corecathx)    | Indonesian                 |
 [Toffee](https://github.com/toffeecaramel) | Brazilian Portuguese       |
+[Slushi-Github](https://github.com/Slushi-Github) | Spanish            |
