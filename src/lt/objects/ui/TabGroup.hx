@@ -24,10 +24,6 @@ class TabGroup extends Panel {
         
         group.cameras = cameras;
         for (i in group.members) {
-            if (i == null) {
-                group.members.remove(i);
-                continue;
-            }
             i.cameras = cameras;
         }
         var intendedWidth:Float = width / tabs.length;
@@ -65,7 +61,6 @@ class TabGroup extends Panel {
         var current:TabsUI = tabs[currentIndex];
         if (current == null) return;
 
-        //trace("Creating: " +current.name);
         current.callback(group);
     }
 
