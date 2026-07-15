@@ -1,0 +1,54 @@
+name: Linux Build
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    name: Linux Build
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieving latest commit.
+        uses: actions/checkout@v4
+      - name: Setting up Haxe
+        uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 5.0.0-preview.1 # haxe version i used cuz yes
+      - name: Restore existing build cache for faster compilation
+        uses: actions/cache@v3
+        with:
+          key: cache-build-linux
+          path: |
+            .haxelib/
+            export/linux/haxe/
+            export/linux/obj/
+          restore-keys: |
+            cache-build-linux
+      - name: Installing / Updating libraries
+        run: |
+          sudo apt-get install libvlc-dev
+          sudo apt-get install libvlccore-dev
+          haxe -cp cli --run Lib
+          haxelib remove hxcpp
+          haxelib git hxcpp https://github.com/HaxeFoundation/hxcpp.git
+      - name: Rebuild Hxcpp
+        run: |
+          haxelib run lime rebuild hxcpp
+      - name: Building the game
+        run: |
+          haxelib run lime build linux
+      - name: Uploading artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LineTapper
+          path: export/linux/bin
+      - name: Uploading new cache
+        uses: actions/cache@v3
+        with:
+          key: cache-build-linux
+          path: |
+            .haxelib/
+            export/linux/haxe/
+            export/linux/obj/
+          restore-keys: |
+            cache-build-linux

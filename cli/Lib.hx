@@ -15,8 +15,8 @@ class Lib {
     public static function main():Void {
         Sys.println('${BOLD}${CYAN}==== LineTapper Setup ====${RESET}');
 
-        if (!FileSystem.exists("./Lib.json")) {
-            Sys.println('${BOLD}${RED}Error: Lib.json not found.${RESET}');
+        if (!FileSystem.exists("./lib.json")) {
+            Sys.println('${BOLD}${RED}Error: lib.json not found.${RESET}');
             return;
         }
 

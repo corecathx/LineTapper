@@ -36,8 +36,11 @@
 	<!-- _____________________________ Game Settings ____________________________ -->
 	<!-- You can change these settings to whatever you wanted.-->
 
+	<!-- If removed, LineTapper will disable it's custom maps feature. -->
+	<define name="ALLOW_CUSTOM_MAPS" if="desktop"/>
+
 	<!-- If removed, LineTapper won't execute scripts inside a map. -->
-	<define name="USING_SCRIPTS"/>
+	<define name="USING_SCRIPTS" if="ALLOW_CUSTOM_MAPS"/>
 
 	<!-- If removed, LineTapper won't display any video. -->
 	<define name="ALLOW_VIDEOS" if="cpp"/>

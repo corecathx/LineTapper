@@ -95,12 +95,29 @@ class LevelEditorState extends State {
 
         camFollow = new FlxObject(0, -100, 1, 1);
 		add(camFollow);
+
+        //center to player
+        FlxG.camera.scroll.set(
+            stage.player.getMidpoint().x - FlxG.camera.width * 0.5,
+            stage.player.getMidpoint().y - FlxG.camera.height * 0.5
+        );
     }
 
+    // it's messy yeah, i'm sorry
     var audioPath:Text;
     var tabs:TabGroup;
     function initHUD() {
         var lastY:Float = 10;
+        inline function makeRow(child:Array<Dynamic>, addTo:FlxSpriteGroup) {
+            for (i => c in child) {
+                var minW:Float = (tabs.width-20) / child.length;
+                c.width = minW;
+                c.x = 0 + (minW * i);
+                c.y = lastY;
+                addTo.add(c);
+            }
+            lastY += 30;
+        }
         inline function makeInputBox(text:String, defaultTxt:String = '', onChange:(String, FlxInputTextChange)->Void):InputBox {
             var obj:InputBox = new InputBox(0,lastY+30,330,defaultTxt);
             obj.label.text = PhraseManager.getPhrase(text, text);
@@ -119,12 +136,12 @@ class LevelEditorState extends State {
             //add(txt);
             return txt;
         }
-        inline function makeButton(text:String,onClick:Bool->Void,isToggle:Bool) {
+        inline function makeButton(text:String,onClick:Bool->Void,isToggle:Bool = false, addY:Bool = true) {
             var btn:Button = new Button(0, lastY,330, text, onClick);
             btn.isToggle = isToggle;
             btn.cameras = [hudCamera];
             //add(btn);
-            lastY = btn.y + btn.height + 10;
+            if (addY) lastY = btn.y + btn.height + 10;
             return btn;
         }
         tabs = new TabGroup(10,30,355, FlxG.height-45);
@@ -136,10 +153,13 @@ class LevelEditorState extends State {
             });
             grp.add(songName);
 
-            var loadSong:Button = makeButton("Load", (_)->{
-                loadMap(songName.text);
-            }, false);
-            grp.add(loadSong);
+            makeRow([
+                makeButton("New", (_)->{
+                }, false, false),
+                makeButton("Load", (_)->{
+                    loadMap(songName.text);
+                }, false, false)
+            ], grp);
 
             var bpm:InputBox = makeInputBox("Beats Per Minute", '${conduct.bpm}', (t,c)->{
                 mapData.bpm = Std.parseFloat(t);
@@ -265,7 +285,7 @@ class LevelEditorState extends State {
     var _lastPlacedTile:Tile = null;
     function _mouseControls(elapsed:Float) {
         var mouseScreen:FlxPoint = FlxG.mouse.getViewPosition();
-        var hoveringHUDElement:Bool = (FlxG.mouse.overlaps(tabs, tabs.cameras[0]));
+        var hoveringHUDElement:Bool = (FlxG.mouse.getViewPosition(tabs.cameras[0]).x < tabs.x + tabs.width);
     
         if (!hoveringHUDElement) {
             dummy.visible = true;

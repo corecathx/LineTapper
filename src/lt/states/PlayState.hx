@@ -193,10 +193,10 @@ class PlayState extends State {
         if (FlxG.keys.justPressed.B) 
             stage.autoplay = !stage.autoplay;
 
-        camFollow.x = player.getMidpoint().x;
-        camFollow.y = player.getMidpoint().y;
-        //camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
-        //camFollow.y = FlxMath.lerp(player.getMidpoint().y, camFollow.y, 1 - (elapsed * 12));
+        //camFollow.x = player.getMidpoint().x;
+        //camFollow.y = player.getMidpoint().y;
+        camFollow.x = FlxMath.lerp(player.getMidpoint().x, camFollow.x, 1 - (elapsed * 12));
+        camFollow.y = FlxMath.lerp(player.getMidpoint().y, camFollow.y, 1 - (elapsed * 12));
 
         timeBar.percent = (Conductor.instance.time / FlxG.sound.music.length) * 100;
         timeTextLeft.text = Utils.formatMS(Conductor.instance.time);

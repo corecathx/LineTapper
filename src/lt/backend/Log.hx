@@ -40,7 +40,6 @@ class Log {
 	@:keep public static inline function script(value:Dynamic, ?pos:PosInfos):Void print(value, "➤", "SCR", 141, pos);
 	private static inline function haxeTrace(value:Dynamic, ?pos:PosInfos):Void print(value, "•", "TRC", 250, pos);
 
-	// Internal log printer
 	private static inline function print(value:Dynamic, icon:String, label:String, color:Int, ?pos:PosInfos):Void {
 		var runtime = formatDuration((Timer.stamp() - startTime)*1000);
 		var posStr = pos.fileName.replace("src/", "") + ":" + pos.lineNumber;
@@ -51,7 +50,6 @@ class Log {
 		log.push('[' + runtime + " " + posStr + "] " + label + ": " + value);
 	}
 
-	// Pretty banner printer
 	public static function prettyPrint(text:String):Void {
 		var lines = text.trim().split("\n");
 		var width = 0;
