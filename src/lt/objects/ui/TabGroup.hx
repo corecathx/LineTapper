@@ -52,11 +52,12 @@ class TabGroup extends Panel {
     }
 
     public function updateGroup() {
-        for (i in group.group) {
+        for (i in group.members) {
             i.kill();
             group.remove(i);
             i.destroy();
         }
+        group.clear();
         var current:TabsUI = tabs[currentIndex];
         if (current == null) return;
 
@@ -67,6 +68,7 @@ class TabGroup extends Panel {
     public function add(name:String, callback:FlxSpriteGroup->Void) {
         var tab:TabsUI = new TabsUI(name,callback);
         tabs.push(tab);
+        updateGroup();
     }
 }
 
